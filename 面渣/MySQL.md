@@ -28,4 +28,5 @@
 - MySQL崩溃重启后咋样回滚: InnoDB只需要重做最近一次CheckPoint之后修改即可(这不是重新执行SQL, 而是修改数据)
 - redo log的写入过程: 先写到redo log buffer里面, 待事务提交后, 再刷盘到redo log文件中
 - 为什么要[[两阶段提交与崩溃恢复机制]]: 保证binlog和redo log的一致性, 防止主从复制和事务状态的不一致
-- 
+- 慢查询: 
+	- 什么是慢查询: 当SQL运行时间超过long_query_time就是慢SQL, 会被记录到慢查询日志中
