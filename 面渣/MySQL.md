@@ -42,4 +42,4 @@
 	- 同时也要避免使用select*, 在分页优化方面, 可以使用延迟关联(先在索引上快速"定位"，拿到目标id后，再去"取数据")和书签法(记录上一页最后一条 ID 的值，如 `WHERE id > last_id LIMIT 10`)这两种方式
 - explain: 常看的字段有`key rows type Extra`, 通过这些可以查看该语句是否使用了索引, 预扫描的行数有多少行, 是否进行了全表扫描, 以及使用了filesort或临时表. 例如, 当type=ALL, Extra=Using filesort 时说明该表使用了全表扫描并且进行了文件排序(说明 MySQL 无法利用索引顺序，必须在内存中进行额外排序，消耗大量 CPU 和 I/O), 我会考虑通过建立索引或改写SQL的的方式来优化.      
 	- 关于type, 从高到低的效率排序是 system、const、eq_ref、ref、range、index 和 ALL。一般来说,达到const, ref ,eq_ref即可, 这说明它使用了索引, 而对于范围查询, 达到range也是可以的
-- 为什么InnoDB要用B+树做索引: 
+- 为什么InnoDB要用B+树做索引:  B+树是一种自平衡的多路查找树, 和二叉树,红黑树不一样只有两个子节点, 它可以有m个子节点
