@@ -93,4 +93,3 @@
 	- 底层实现依赖undo log和Read View
 		- 修改数据前, 会先将数据写到undo log里面, 每条记录都包含了三个隐藏字段, DB_TRX_ID: 最近修改该条数据的事务ID ,  DB_ROLL_PTR: 指向undo log中的上一个版本, DB_ROW_ID: 标记该数据的
 		- 在查询时生成了一个Read View, 记录当前活跃事务的ID的集合, 最小事务ID, 最大事务ID等等, 通过与DB_TRX_ID比较看是否能看到该数据版本
-- 
