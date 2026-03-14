@@ -5,7 +5,17 @@
 	- 还有模板方法: 比如 JdbcTemplate, 定义了数据库的基本流程: 连接数据库, 执行SQL, 处理结果, 关闭连接 
 - Bean的生命周期: 总共分为5个阶段
 	- 实例化: Spring容器会通过反射调用Bean的构造方法来创建对象实例, 这时候它没有属性
-	- 属性注入: 
+	- 属性注入: 对象创建好后, Spring会进行依赖注入(也就是根据Bean的属性赋值), 就是通过@Autowired, @Resource注解注入依赖对象, 或者将xml里面的配置填充进去
 	- 初始化: 
-	- 使用Bean: 
-	- 销毁: 
+		- 回调Aware接口: 如果 Bean 实现了 `BeanNameAware` 等接口，Spring 会把 Bean 的名字、Factory 等信息注入进去。
+		- 进行BeanPostProcessor前置处理
+		- 执行初始化方法: 
+			- 首先执行@postConstruct下的方法
+			- 在执行InitializingBean接口下的afterPropertiesSet方法
+			- 最后执行自定的init-method
+		- 进行BeanPostProcessor后置处理, 通常在这一步创建好了代理对象, 比如AOP代理
+	- 使用Bean: 比如Controller调用Services, Services调用DAO
+	- 销毁: 当容器关闭或者Bean被移除时, 依次执行
+		- @preDestory下的方法
+		- DisposaableBean接口的destory方法
+		- 执行自定义的destory-method
