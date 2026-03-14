@@ -19,3 +19,8 @@
 		- @preDestory下的方法
 		- DisposaableBean接口的destory方法
 		- 执行自定义的destory-method
+- 三级缓存来解决循环依赖问题: 
+	- 三级缓存: 
+		- 一级缓存: 用来存储已经实例化初始化完全的Bean实例
+		- 二级缓存: 用来
+		- 三级缓存: 
