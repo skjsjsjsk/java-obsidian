@@ -292,16 +292,16 @@
       ]
     },
     {
-      "name": "llama3.1:8b",
-      "provider": "ollama",
-      "baseUrl": "http://localhost:11434",
-      "enabled": true
-    },
-    {
-      "name": "gpt-oss:120b-cloud",
-      "provider": "ollama",
-      "baseUrl": "http://localhost:11434",
-      "enabled": true
+      "name": "GLM-4.7",
+      "provider": "openrouterai",
+      "enabled": true,
+      "isBuiltIn": false,
+      "baseUrl": "https://open.bigmodel.cn/api/coding/paas/v4",
+      "apiKey": "d87c83e1d3b745dcbb2f26759e18ab89.NZ8GpoYKfuauTItC",
+      "isEmbeddingModel": false,
+      "capabilities": [],
+      "stream": true,
+      "maxTokens": 128000
     }
   ],
   "activeEmbeddingModels": [
@@ -415,7 +415,7 @@
   "passMarkdownImages": true,
   "enableAutonomousAgent": true,
   "enableCustomPromptTemplating": true,
-  "enableSemanticSearchV3": false,
+  "enableSemanticSearchV3": true,
   "enableSelfHostMode": false,
   "enableMiyo": false,
   "selfHostModeValidatedAt": null,
