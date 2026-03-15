@@ -24,7 +24,7 @@
 	- redo log(物理日志): 保证事务持久性
 	- binlog(逻辑日志): 主从恢复和数据恢复
 	- undo log: 回滚和MVCC
-- WAL: 先写日志后刷盘, 即在修改操作前先将修改记录写入redo log, 这样即使系统崩溃, 也能根据redo log 进行回滚
+- WAL: 先写日志后刷盘, 即在修改操作将内存中的脏页刷入到磁盘前先将修改记录写入redo log, 这样即使系统崩溃, 也能根据redo log 进行重做
 - MySQL崩溃重启后咋样回滚: InnoDB只需要重做最近一次CheckPoint之后修改即可(这不是重新执行SQL, 而是修改数据)
 - redo log的写入过程: 先写到redo log buffer里面, 待事务提交后, 再刷盘到redo log文件中
 - 为什么要[[两阶段提交与崩溃恢复机制]]: 保证binlog和redo log的一致性, 防止主从复制和事务状态的不一致
