@@ -54,4 +54,3 @@
 		- NESTED: 如果存在事务, 就在事务内执行, 如果没有, 就与REQUIRED类似
 		- NEVER: 以非事务的方式运行, 如果当前存在事务就报错
 - 什么是SpringBoot: SpringBoot就是一个基于Spring的快速开发包, 在传统的Spring开发种, 我们需要进行大量的xml配置文件, 还要手动管理各自jar包的依赖关系, 非常繁琐, 而SpringBoot通过起步依赖和自动装配解决了这些问题. 举个例子, 我在做RAG的问答助手这个项目的时候, 我在xml文件种引入spring-boot-starter-web, spring-boot-starter-data-redis依赖就自动完成了web和redis的连接, 不需要任何繁琐的配置代码. 同时SpringBoot预设了很多默认的配置, 比如内置Tomcat服务器, 可以直接打包成jar包运行等等. 它解决了传统Spring配置复杂, 管理依赖麻烦的问题.
-- 
