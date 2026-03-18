@@ -33,5 +33,7 @@
 - 异常处理: Throwable是Java中所有异常和错误的基类, 它有两个子类分别为Error和Exception. 
 	- Error代表那些比较严重的错误, 通常是程序无法处理的, 比如OOM内存不足, 一旦发生这种错误, 程序通常无法恢复.     
 	- Exception代表程序可以处理的异常, 分为编译时异常(Checked Exception)和运行时异常(Runtime Exception). 
+		- 编译时异常: 
+		- 运行时异常: 
 - BIO, NIO, AIO: 
 - 反射及应用: 
