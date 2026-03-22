@@ -325,3 +325,20 @@ $$ (上一条记录, \quad 当前记录] $$
 
 这样修改后，逻辑闭环了，面试官问任何边角情况都能Cover住。
 [Timestamp: 2026/03/22 20:38:07]
+
+**user**: InnoDB默认隔离级别
+[Context: Notes: 面渣/MySQL.md]
+[Timestamp: 2026/03/22 20:42:05]
+
+**ai**: InnoDB 默认的隔离**级别**（不是几倍 😊）是 **可重复读**，也就是 **Repeatable Read**，简称 **RR**。
+
+这里有两个关键点需要注意，面试常考：
+
+1.  **SQL 标准差异**：
+    - 在 SQL 标准中，RR 级别是**无法**解决幻读问题的。
+    - 但在 MySQL 的 InnoDB 实现中，通过 **MVCC**（多版本并发控制）和 **Next-Key Lock**（临键锁），**解决了幻读问题**。
+
+2.  **与其他数据库对比**：
+    - 像 Oracle、PostgreSQL 等数据库，默认通常是 **读已提交**。
+    - 只有 MySQL InnoDB 默认用的是 RR。
+[Timestamp: 2026/03/22 20:42:11]
