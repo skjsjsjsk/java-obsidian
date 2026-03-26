@@ -1,26 +1,5 @@
 # 基于 RAG 的问答助手项目面试题与参考回答
 
-## 先提醒你两点
-
-### 1. 你这段简历里有一个高风险点
-
-你写了 `MyBatis`，但我前面看过项目代码，当前仓库后端主要是 **Spring Data JPA**，不是 MyBatis 主导。
-
-如果你简历继续写 `MyBatis`，面试官很容易追问这些问题：
-
-- 你的 `Mapper` 在哪
-- 动态 SQL 是怎么写的
-- 分页插件怎么接的
-- MyBatis 一级缓存和二级缓存你在项目里怎么用的
-- MyBatis 和 JPA 为什么同时存在
-
-如果你答不上，面试官会直接怀疑项目真实性。
-
-更稳妥的写法是：
-
-- `Spring Boot、MySQL、Redis、Kafka、Elasticsearch、MinIO、WebSocket`
-- 如果你确实做过 SQL 手写优化，可以说“部分复杂查询结合 SQL 实现”
-
 ### 2. 你要先背熟一版 1 分钟项目介绍
 
 面试官大概率先问：
@@ -529,114 +508,10 @@ ES 本身就支持 rescore，把二阶段排序下推到检索引擎层，能减
 7. 为什么做混合检索，而不是纯 BM25 或纯向量检索？
 8. 权限过滤为什么要放在检索层而不是应用层？
 
----
-
-## 八、给你的简历修改建议
-
-### 建议 1
-
-如果你不能稳定回答 MyBatis 细节，就把 `MyBatis` 从技术栈里去掉。
-
-### 建议 2
-
-你现在的项目描述偏“功能罗列”，建议改成“链路 + 结果”的写法。
-
-你可以改成：
-
-> 面向企业内部知识检索与问答场景，参与实现基于 RAG 的问答助手。负责大文件分片上传与异步处理链路、Elasticsearch 混合检索、WebSocket 流式对话及组织标签权限控制，完成从文档入库、向量化到知识问答的完整后端链路建设。
-
-### 建议 3
-
-工作内容里最好加一句“你主导或重点负责什么”，否则容易显得所有点都只是“参与”。
-
-比如可以写成：
-
-> 重点负责文件上传异步处理链路、RAG 检索流程和 WebSocket 流式问答能力建设。
-
----
-
-## 九、最后给你一版更像校招回答的总结
-
-**Q：如果让你用一句话总结这个项目，你会怎么说？**
-
-**A：** 这是一个把企业文档经过上传、解析、向量化和混合检索后接入大模型，实现可控知识问答的 RAG 系统，我主要负责其中的异步处理链路、混合检索和流式对话能力。
-
----
-
-## 十、简历可直接替换版本
-
-下面这版是我建议你直接放进简历里的版本，重点是：
-
-- 去掉容易被追穿的表述
-- 强化你的个人贡献
-- 把链路说完整，但不说过头
-
-### 项目名称
-
-基于 RAG 的企业知识问答助手 | 后端开发
-
-### 技术栈
-
-Spring Boot、MySQL、Redis、Kafka、Elasticsearch、MinIO、WebSocket
-
-如果你后面确实能讲清模型接入和切换逻辑，也可以补一条：
-
-- DeepSeek / Ollama / Embedding API
-
-### 项目描述
-
-面向企业内部文档检索与知识问答场景，参与实现基于 RAG 的问答助手。系统支持文档分片上传、异步解析与向量化、Elasticsearch 混合检索以及基于 WebSocket 的流式问答，完成从文档入库到知识问答的完整后端链路建设。
-
-### 工作内容
-
-- 负责文档分片上传、合并与异步处理链路设计，结合 Redis 记录上传进度、MinIO 存储文件内容，并通过 Kafka 解耦上传、解析和向量化流程，支持大文件断点续传与可靠上传。
-- 负责文档解析与知识入库流程，将多格式文档解析为文本片段并完成向量化处理，构建面向 RAG 场景的知识索引数据。
-- 负责基于 Elasticsearch 的混合检索能力建设，结合 IK 分词、向量召回和 BM25 重排，实现关键词匹配与语义相似度结合的检索方案。
-- 负责 WebSocket 流式问答链路开发，结合检索结果与多轮上下文构造增强 Prompt，对接大模型 Stream API，实现逐步返回的对话体验，并支持 DeepSeek / 本地 Ollama 模型切换。
-- 参与组织标签权限模型设计，将文档访问权限与用户、组织和公开范围关联，并在检索阶段进行权限过滤，保证知识库查询结果可控。
-
-## 十一、更强一点的版本
-
-如果你后面准备把项目讲得更扎实，可以用这一版，表达会更像“你真做过”。
-
-### 项目描述
-
-面向企业内部知识检索和问答场景，参与实现基于 RAG 的知识问答系统。后端围绕“文档上传 -> 异步解析/向量化 -> 混合检索 -> 流式对话”构建完整链路，支持多格式文档入库、组织级权限隔离和多轮问答。
-
-### 工作内容
-
-- 重点负责文件上传与异步处理链路，基于分片上传、断点续传和 Kafka 异步消费机制，将大文件上传、文档解析、向量化和索引构建解耦，提升系统稳定性与可扩展性。
-- 重点负责 RAG 检索链路，基于 Elasticsearch 构建文本与向量一体化索引，结合 IK 分词、Embedding 向量、KNN 召回和 BM25 重排，提升知识召回的相关性。
-- 重点负责流式问答能力，基于 WebSocket 建立长连接，对接大模型流式接口，并通过模型路由能力支持 DeepSeek 与本地 Ollama 切换，支持逐段返回、停止生成和多轮上下文问答。
-- 参与知识权限模型设计，将用户、组织标签与文档公开性结合，在检索阶段执行权限过滤，避免越权召回。
-
-## 十二、你当前版本需要删除或改掉的词
-
-下面这些词，如果你讲不透，建议不要写：
-
-- `MyBatis`
-- `精细化访问控制`
-- `提升问答准确度`
-- `模块化分层架构`
-
-替代写法：
-
-- 把 `MyBatis` 改成 `MySQL`
-- 如果你确实实现了模型切换，不要单独只写 `Ollama`，改成 `支持 DeepSeek / 本地 Ollama 模型切换`
-- 把 `精细化访问控制` 改成 `基于用户、组织标签和公开范围的权限控制`
-- 把 `提升问答准确度` 改成 `结合检索结果构造增强 Prompt`
-- 把 `模块化分层架构` 改成 `按上传、检索、问答等模块拆分后端能力`
 
 ---
 
 ## 十三、分片上传、断点续传、Kafka 作用专项准备
-
-这一部分是你项目里非常容易被问的内容，而且很适合体现工程能力。
-
-先统一术语：
-
-- 面试时优先说 `断点续传`
-- 不建议说 `断电续传`
 
 ### 1. 面试官会先怎么问
 
@@ -810,11 +685,45 @@ Kafka 更适合这种“文件上传完成后进入异步处理链路”的场�
 **A：** 因为文件最终本来就要落在对象存储里。  
 直接在 MinIO 层完成合并，可以减少本地磁盘中转和应用服务器 I/O 压力，也更适合多实例部署，不会把文件状态绑死在某一台机器上。
 
-## 十八、最适合校招面试的 1 分钟口述版
+# 项目主链路
 
-**Q：你用 1 分钟讲一下分片上传、断点续传和 Kafka。**
+## 入库链路
 
-**A：** 我们项目里大文件上传是按 chunk 做的，前端先切片并计算 `fileMd5`，每个分片单独上传。服务端把 chunk 写到 MinIO，同时用 Redis bitmap 记录每个分片的上传状态，并在数据库保存文件和分片元数据。  
-断点续传的关键是客户端重新上传前先查状态接口，服务端返回已经上传成功的 chunk 列表，前端只补传缺失分片。  
-当全部分片上传完成后，服务端再把所有 chunk 合并成完整文件。  
-Kafka 的作用是在文件合并成功后，把后续的文档解析、切块、向量化和 Elasticsearch 建索引异步化，避免上传接口同步执行重任务。这样能降低请求时延，也能通过重试和死信队列提高处理链路的可靠性。
+1. 文件上传入口在 `UploadController.uploadChunk`。前端先按 5MB 对大文件分片，携带 `fileMd5`、`chunkIndex`、`totalSize`、`fileName`、`orgTag`、`isPublic` 等参数逐片上传。控制层先做文件类型校验、组织标签补全、组织上传大小限制校验。
+    
+2. 分片真正落地由 `UploadService.uploadChunk` 完成。第一次上传时会先在 MySQL 的 `file_upload` 表创建文件记录，保存 `fileMd5`、`fileName`、`totalSize`、`userId`、`orgTag`、`isPublic` 等元数据。
+    
+3. 断点续传依赖 Redis bitmap。服务端使用 `upload:{userId}:{fileMd5}` 作为 key，按 `chunkIndex` 标记分片上传状态；分片内容本身写入 MinIO，路径是 `chunks/{fileMd5}/{chunkIndex}`；同时把 `chunkMd5`、`storagePath` 等分片元数据写入 MySQL 的 `chunk_info` 表。前端查询上传状态时，后端通过 `getUploadedChunks` 返回已上传分片列表，只补传缺失分片。
+    
+4. 所有分片上传完成后，前端调用 `UploadController.mergeFile`。控制层先校验文件归属和分片完整性，再调用 `UploadService.mergeChunks` 使用 MinIO `composeObject` 将所有分片合并成 `merged/{fileMd5}`。合并成功后删除原始分片对象、清理 Redis 上传标记，并把 `file_upload.status` 更新为已完成。
+    
+5. 文件合并后，系统会先同步做一次 Embedding 用量预估。`UploadController.mergeFile` 通过 `uploadService.getMergedFileStream` 获取合并后的文件流，再调用 `ParseService.estimateEmbeddingUsage` 估算预计 token 数和预计 chunk 数，并把结果回写到 `file_upload` 表，供前端展示和配额控制使用。
+    
+6. 真正的知识入库不在上传请求里同步执行，而是由 `UploadController.mergeFile` 构造 `FileProcessingTask` 投递到 Kafka。这样把“上传成功”和“文档解析、向量化、建索引”解耦，避免上传接口阻塞在重任务上，同时也便于削峰、重试和死信处理。
+    
+7. Kafka 消费端是 `FileProcessingConsumer.processTask`。消费者收到任务后先从 MinIO 预签名 URL 下载完整文件，再调用 `ParseService.parseAndSave` 做文档解析和切块。这里对非 PDF 文档使用 Tika 流式解析，对 PDF 使用 PDFBox 按页提取文本，并通过段落、句子、分词三级策略切分成适合 RAG 的文本块。
+    
+8. 切块结果先写入 MySQL 的 `document_vectors` 表，保存 `fileMd5`、`chunkId`、`textContent`、`pageNumber`、`anchorText`、`userId`、`orgTag`、`isPublic` 等字段。随后 `VectorizationService.vectorizeWithUsage` 从库里取出 chunk 文本，调用 `EmbeddingClient` 访问 Embedding 模型生成向量，再通过 `ElasticsearchService.bulkIndex` 批量写入 ES 的 `knowledge_base` 索引，完成知识入库。
+    
+9. 这一段链路涉及的核心模块和技术栈包括：`Spring MVC`、`Spring Data JPA`、`MySQL`、`Redis bitmap`、`MinIO`、`Kafka`、`Apache Tika`、`PDFBox`、`HanLP`、`Embedding API`、`Elasticsearch`。
+    
+
+## 问答展示链路
+
+1. 前端通过 WebSocket 建立会话，入口由 `WebSocketConfig` 注册到 `/chat/{token}`，实际连接处理在 `ChatWebSocketHandler.afterConnectionEstablished`。后端会校验 JWT，提取 `userId`，把 WebSocket 会话和用户绑定起来。
+    
+2. 用户发送问题后，由 `ChatWebSocketHandler.handleTextMessage` 接收消息，并转发给 `ChatHandler.processMessage`。`ChatHandler` 会先做限流校验，再从 Redis 中读取当前会话 ID 和历史对话记录，准备多轮问答上下文。
+    
+3. 检索阶段由 `HybridSearchService.searchWithPermission` 完成。系统先调用 `EmbeddingClient` 为用户问题生成查询向量，然后向 Elasticsearch 发起混合检索请求：`knn` 负责语义召回，`query.must(match)` 负责关键词匹配，`query.filter` 负责权限过滤，`rescore` 再用 BM25 风格做二阶段重排。
+    
+4. 权限控制贯穿在检索链路中。可见范围包括三类：用户自己的文档、公开文档、用户所属组织标签下的文档。这样保证最终召回的 chunk 与上传时写入的 `userId`、`orgTag`、`isPublic` 元数据一致，满足多租户和组织级知识隔离要求。
+    
+5. 检索结果返回后，`ChatHandler.buildContext` 会把命中的 chunk 组装成 RAG 上下文，并建立引用编号到文件名、页码、锚点文本、chunkId 的映射。这样模型回答时不仅有检索证据，前端后续也能展示引用出处。
+    
+6. 大模型调用由 `LlmProviderRouter.streamResponse` 完成。它会从 `ModelProviderConfigService` 读取当前激活的 LLM provider，把系统规则、检索上下文、多轮历史和当前问题拼装成 OpenAI 兼容格式的 `messages`，然后调用 `/chat/completions` 的流式接口。当前项目既支持云端模型，也保留了本地兼容 provider 的切换能力。
+    
+7. 模型流式返回后，`LlmProviderRouter` 逐块解析响应，把文本 chunk 回调给 `ChatHandler`。`ChatHandler` 一边累积完整回答，一边通过 WebSocket 向前端持续推送 `{"chunk":"..."}` 格式的数据，前端据此实现“打字机式”答案展示。
+    
+8. 当模型输出结束后，`ChatHandler` 会发送 completion 消息，通知前端本轮回答完成；同时把用户问题、完整回答和引用映射写回 Redis 会话历史，用于下一轮多轮问答。这样用户看到的是流式回答，系统内部维护的是“检索增强 + 多轮上下文”的完整问答链路。
+    
+9. 这一段链路涉及的核心模块和技术栈包括：`Spring WebSocket`、`Redis`、`Elasticsearch Hybrid Search`、`Embedding API`、`LLM Stream API`、`WebClient`、`JWT`、`RAG Prompt`、`多轮会话管理`。
