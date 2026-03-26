@@ -441,6 +441,7 @@
   "selfHostUrl": "",
   "selfHostApiKey": "",
   "miyoServerUrl": "",
+  "miyoVaultName": "",
   "selfHostSearchProvider": "firecrawl",
   "firecrawlApiKey": "",
   "perplexityApiKey": "",
@@ -472,6 +473,5 @@
   "userSystemPromptsFolder": "copilot/system-prompts",
   "defaultSystemPromptTitle": "",
   "autoCompactThreshold": 128000,
-  "convertedDocOutputFolder": "",
-  "miyoVaultName": ""
+  "convertedDocOutputFolder": ""
 }
