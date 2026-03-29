@@ -317,12 +317,11 @@
       "isEmbeddingModel": false,
       "capabilities": [
         "reasoning",
-        "vision",
-        "websearch"
+        "websearch",
+        "vision"
       ],
       "stream": true,
-      "displayName": "自己的",
-      "enableCors": false
+      "displayName": "补偿的"
     }
   ],
   "activeEmbeddingModels": [
