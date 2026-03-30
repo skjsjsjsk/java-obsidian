@@ -34,27 +34,25 @@
 			    - `MessageSourceAware`
 			
 			- 它的作用是让 Bean 感知 Spring 容器提供的一些基础信息和能力。
-
+			
 		- 3.2 BeanPostProcessor 前置处理
 			- 会执行 Bean 后置处理器中的前置方法，也就是：
 			- `postProcessBeforeInitialization()`
-
+			
 		-  3.3 执行初始化方法
 			- 初始化方法的执行顺序一般是：
 			- `@PostConstruct`
 			- `InitializingBean` 接口的 `afterPropertiesSet()`
 			- 自定义的 `init-method`
-
+			
 		-  3.4 BeanPostProcessor 后置处理
 			- 最后执行：`postProcessAfterInitialization()`
 			- Spring AOP 的代理对象，通常就是在这个阶段创建出来的。上面方法的返回值会替换掉原始Bean，所以你注入的对象和Spring实例化的对象可能不是同一个。
-
+			
 	4. 使用 Bean
+	- 初始化完成后，Bean 就可以被业务代码正常使用了，比如 Controller 调用 Service，Service 调用 DAO。
 	
-		- 初始化完成后，Bean 就可以被业务代码正常使用了，比如 Controller 调用 Service，Service 调用 DAO。
-
 	 5. 销毁
-
 		- 当容器关闭时，Spring 会销毁 Bean，执行顺序一般是：
 			- `@PreDestroy`
 			- `DisposableBean` 的 `destroy()`
