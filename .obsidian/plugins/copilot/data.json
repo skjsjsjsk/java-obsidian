@@ -317,8 +317,8 @@
       "isEmbeddingModel": false,
       "capabilities": [
         "reasoning",
-        "websearch",
-        "vision"
+        "vision",
+        "websearch"
       ],
       "stream": true,
       "displayName": "补偿的"
@@ -439,7 +439,7 @@
   "defaultConversationNoteName": "{$topic}@{$date}_{$time}",
   "inlineEditCommands": [],
   "projectList": [],
-  "lastDismissedVersion": "3.2.5",
+  "lastDismissedVersion": "3.2.6",
   "passMarkdownImages": true,
   "enableAutonomousAgent": true,
   "enableCustomPromptTemplating": true,
