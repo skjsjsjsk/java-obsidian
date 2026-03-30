@@ -36,23 +36,18 @@
 			- 它的作用是让 Bean 感知 Spring 容器提供的一些基础信息和能力。
 
 		- 3.2 BeanPostProcessor 前置处理
-		- 会执行 Bean 后置处理器中的前置方法，也就是：
-		- `postProcessBeforeInitialization()`
+			- 会执行 Bean 后置处理器中的前置方法，也就是：
+			- `postProcessBeforeInitialization()`
 
 		-  3.3 执行初始化方法
+			- 初始化方法的执行顺序一般是：
+			- `@PostConstruct`
+			- `InitializingBean` 接口的 `afterPropertiesSet()`
+			- 自定义的 `init-method`
 
-		- 初始化方法的执行顺序一般是：
-		- `@PostConstruct`
-		- `InitializingBean` 的 `afterPropertiesSet()`
-		- 自定义的 `init-method`
-
-#### 3.4 BeanPostProcessor 后置处理
-
-最后执行：
-
-- `postProcessAfterInitialization()`
-
-Spring AOP 的代理对象，通常就是在这个阶段创建出来的。
+		-  3.4 BeanPostProcessor 后置处理
+			- 最后执行：`postProcessAfterInitialization()`
+			- Spring AOP 的代理对象，通常就是在这个阶段创建出来的。
 
 ### 4. 使用 Bean
 
