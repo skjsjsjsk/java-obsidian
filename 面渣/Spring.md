@@ -47,7 +47,7 @@
 
 		-  3.4 BeanPostProcessor 后置处理
 			- 最后执行：`postProcessAfterInitialization()`
-			- Spring AOP 的代理对象，通常就是在这个阶段创建出来的。
+			- Spring AOP 的代理对象，通常就是在这个阶段创建出来的。上面方法的返回值会替换掉原始Bean，所以你注入的对象和Spring实例化的对象可能不是同一个。
 
 	4. 使用 Bean
 	
