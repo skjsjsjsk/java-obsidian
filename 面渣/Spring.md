@@ -4,22 +4,67 @@
 	- 代理模式: 有两种代理模式, 分别为JDK动态代理和CGLIB代理, 当当前类实现接口时就会使用JDK动态代理, 否则就用CGLIB创建子类来进行代理
 	- 还有模板方法: 比如 JdbcTemplate, 定义了数据库的基本流程: 连接数据库, 执行SQL, 处理结果, 关闭连接 
 
-- Bean的生命周期: 总共分为5个阶段
-	- 实例化: Spring容器会通过反射调用Bean的构造方法来创建对象实例, 这时候它没有属性
-	- 属性注入: 对象创建好后, Spring会进行依赖注入(也就是根据Bean的属性赋值), 就是通过@Autowired, @Resource注解注入依赖对象
-	- 初始化: 
-		- 回调Aware接口: 如果 Bean 实现了 `BeanNameAware` 等接口，Spring 会把 Bean 的名字、Factory 等信息注入进去。
-		- 进行BeanPostProcessor前置处理
-		- 执行初始化方法: 
-			- 首先执行@postConstruct下的方法
-			- 在执行InitializingBean接口下的afterPropertiesSet方法
-			- 最后执行自定的init-method
-		- 进行BeanPostProcessor后置处理, 通常在这一步创建好了代理对象, 比如AOP代理
-	- 使用Bean: 比如Controller调用Services, Services调用DAO
-	- 销毁: 当容器关闭或者Bean被移除时, 依次执行
-		- @preDestory下的方法
-		- DisposaableBean接口的destory方法
-		- 执行自定义的destory-method
+- Bean的生命周期: 
+	Spring 中 Bean 的生命周期，大致可以分为 **实例化、属性注入、初始化、使用、销毁** 这几个阶段。
+	1. 实例化
+	Spring 容器首先会通过构造方法或者工厂方法来创建 Bean 对象，此时对象已经存在，但是里面的属性还没有赋值。
+	2. 属性注入
+	Spring 会对 Bean 进行依赖注入，也就是给对象中的成员变量赋值，比如通过 `@Autowired`、`@Resource` 注入其他 Bean。
+	3. 初始化
+	- 回调 Aware 接口
+	- 执行 BeanPostProcessor 前置处理
+	- 执行初始化方法
+	- 执行 BeanPostProcessor 后置处理
+	
+	- 其中：
+		- 3.1 回调 Aware 接口
+			- Aware 接口主要分为两类：
+				- BeanFactory 级别, 在`invokeAwareMethods()`方法里直接调用，不经过任何后处理器：
+			    
+			    - `BeanNameAware`
+			    - `BeanClassLoaderAware`
+			    - `BeanFactoryAware`
+		
+			- ApplicationContext 级别
+			    
+			    - `ApplicationContextAware`
+			    - `EnvironmentAware`
+			    - `ResourceLoaderAware`
+			    - `ApplicationEventPublisherAware`
+			    - `MessageSourceAware`
+			
+			- 它的作用是让 Bean 感知 Spring 容器提供的一些基础信息和能力。
+
+		- 3.2 BeanPostProcessor 前置处理
+		- 会执行 Bean 后置处理器中的前置方法，也就是：
+		- `postProcessBeforeInitialization()`
+
+		-  3.3 执行初始化方法
+
+		- 初始化方法的执行顺序一般是：
+		- `@PostConstruct`
+		- `InitializingBean` 的 `afterPropertiesSet()`
+		- 自定义的 `init-method`
+
+#### 3.4 BeanPostProcessor 后置处理
+
+最后执行：
+
+- `postProcessAfterInitialization()`
+
+Spring AOP 的代理对象，通常就是在这个阶段创建出来的。
+
+### 4. 使用 Bean
+
+初始化完成后，Bean 就可以被业务代码正常使用了，比如 Controller 调用 Service，Service 调用 DAO。
+
+### 5. 销毁
+
+当容器关闭时，Spring 会销毁 Bean，执行顺序一般是：
+
+- `@PreDestroy`
+- `DisposableBean` 的 `destroy()`
+- 自定义的 `destroy-method`
 - 三级缓存来解决循环依赖问题: 
 	- 三级缓存: 
 		- 一级缓存: 用来存储已经实例化初始化完全的Bean实例
