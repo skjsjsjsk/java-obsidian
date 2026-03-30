@@ -6,7 +6,7 @@
 
 - Bean的生命周期: 总共分为5个阶段
 	- 实例化: Spring容器会通过反射调用Bean的构造方法来创建对象实例, 这时候它没有属性
-	- 属性注入: 对象创建好后, Spring会进行依赖注入(也就是根据Bean的属性赋值), 就是通过@Autowired, @Resource注解注入依赖对象, 或者将xml里面的配置填充进去
+	- 属性注入: 对象创建好后, Spring会进行依赖注入(也就是根据Bean的属性赋值), 就是通过@Autowired, @Resource注解注入依赖对象
 	- 初始化: 
 		- 回调Aware接口: 如果 Bean 实现了 `BeanNameAware` 等接口，Spring 会把 Bean 的名字、Factory 等信息注入进去。
 		- 进行BeanPostProcessor前置处理
