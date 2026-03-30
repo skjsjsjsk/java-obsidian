@@ -25,7 +25,7 @@
 			    - `BeanClassLoaderAware`
 			    - `BeanFactoryAware`
 		
-			- ApplicationContext 级别
+			- ApplicationContext 级别, 通过`ApplicationContextAwareProcessor`这个后处理器调用。两者的调用时机和依赖层级不同。
 			    
 			    - `ApplicationContextAware`
 			    - `EnvironmentAware`
