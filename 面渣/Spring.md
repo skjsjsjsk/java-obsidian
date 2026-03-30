@@ -49,17 +49,17 @@
 			- 最后执行：`postProcessAfterInitialization()`
 			- Spring AOP 的代理对象，通常就是在这个阶段创建出来的。
 
-### 4. 使用 Bean
+	4. 使用 Bean
+	
+		- 初始化完成后，Bean 就可以被业务代码正常使用了，比如 Controller 调用 Service，Service 调用 DAO。
 
-初始化完成后，Bean 就可以被业务代码正常使用了，比如 Controller 调用 Service，Service 调用 DAO。
+	 5. 销毁
 
-### 5. 销毁
+		- 当容器关闭时，Spring 会销毁 Bean，执行顺序一般是：
+			- `@PreDestroy`
+			- `DisposableBean` 的 `destroy()`
+			- 自定义的 `destroy-method`
 
-当容器关闭时，Spring 会销毁 Bean，执行顺序一般是：
-
-- `@PreDestroy`
-- `DisposableBean` 的 `destroy()`
-- 自定义的 `destroy-method`
 - 三级缓存来解决循环依赖问题: 
 	- 三级缓存: 
 		- 一级缓存: 用来存储已经实例化初始化完全的Bean实例
