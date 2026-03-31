@@ -260,24 +260,6 @@ Spring Boot 通过 @EnableAutoConfiguration + `spring.factories`/`AutoConfigurat
 7. **追问：如何排除某个自动配置类？**  
    使用 `@SpringBootApplication(exclude = {XXXAutoConfiguration.class})` 或在配置文件中设置 `spring.autoconfigure.exclude`。  
 ---
-## 16. Spring Boot 配置文件的加载顺序是怎样的？
-**15秒简答**  
-内部配置：`file:./config/` > `file:./` > `classpath:/config/` > `classpath:/`；外部配置：命令行参数 > 系统环境变量 > jar 外部配置文件 > jar 内部配置文件。高优先级覆盖低优先级。  
-**3分钟详答**  
-Spring Boot 支持多环境、多层级配置，优先级大致从高到低：  
-1. 命令行参数，如 `--server.port=8081`。  
-2. 操作系统环境变量。  
-3. jar 包外部的 application-{profile}.yml。  
-4. jar 包内部的 application-{profile}.yml。  
-5. jar 包外部的 application.yml。  
-6. jar 包内部的 application.yml。  
-内部文件路径优先级：项目根目录下 `config/` > 项目根目录 > 类路径 `config/` > 类路径根目录。相同属性高优先级覆盖低优先级，未冲突则互补。  
-**追问**
-7. **追问：如何指定不同环境配置文件？**  
-   使用 `application-{profile}.yml`，通过 `spring.profiles.active=dev` 激活指定环境。  
-8. **追问：配置属性如何绑定到 Bean？**  
-   使用 `@ConfigurationProperties(prefix = "xxx")` 将配置文件中的前缀属性注入到 Bean 字段中。  
----
 ## 17. Spring Boot 常用 Starter 有哪些？
 **15秒简答**  
 常用：spring-boot-starter-web（Web 开发）、starter-data-jpa（JPA）、starter-data-redis（Redis）、starter-security（安全）、starter-test（测试）、starter-actuator（监控）等。  
@@ -347,113 +329,6 @@ Spring Boot 通过约定优于配置，大幅减少样板代码：
 2. **追问：Spring Boot 和传统 Spring 项目相比，最大的优势是什么？**  
    简化配置、内嵌容器、自动配置、生产级监控 Actuator、依赖版本统一管理等，让开发者可以更专注于业务逻辑。  
 ---
-## 21. 如何在 Spring 中实现多数据源事务？
-**15秒简答**  
-可以配置多个 DataSource 和对应的事务管理器，通过 @Transactional(“transactionManagerName”) 指定使用哪个事务管理器；或者使用 JTA 分布式事务（在简单场景下一般不用）。  
-**3分钟详答**  
-在单机多数据源场景下：  
-1. 配置多个 DataSource（如 primaryDataSource、secondaryDataSource）。  
-2. 为每个 DataSource 配置对应的 PlatformTransactionManager，如 primaryTransactionManager、secondaryTransactionManager。  
-3. 在 Service 方法上使用 @Transactional(“primaryTransactionManager”) 指定事务管理器。  
-需要注意：跨数据源事务不能通过简单的本地事务保证一致性，需要考虑分布式事务方案（如 Seata、基于消息的最终一致性等）。  
-**追问**
-4. **追问：多事务管理器情况下，默认事务管理器是哪一个？**  
-   可以通过 `@Primary` 标注某个事务管理器为默认，或者显式指定事务管理器名称。  
-5. **追问：分布式事务有哪些常见方案？**  
-   常见：基于两阶段提交的 JTA、基于补偿的 TCC、基于本地消息表/事务消息的最终一致性、Seata 等。  
----
-## 22. Spring 如何与 MyBatis/MyBatis-Plus 整合？
-**15秒简答**  
-Spring Boot 下引入 mybatis-spring-boot-starter，配置数据源和 mybatis 配置（mapper 文件位置、别名包等），在接口上标注 @Mapper 或使用 @MapperScan 扫描 Mapper 接口，由 Spring 创建代理实现类。  
-**3分钟详答**  
-整合步骤：  
-1. 引入 starter：mybatis-spring-boot-starter 或 mybatis-plus-boot-starter。  
-2. 在 application.yml 中配置数据源、mapper 文件位置、别名包等。  
-3. 在启动类上使用 @MapperScan 指定 Mapper 接口所在包，或在每个 Mapper 接口上标注 @Mapper。  
-4. Spring 会为每个 Mapper 接口创建代理对象，注入到 SqlSession 中，由 Spring 管理事务。  
-MyBatis-Plus 在此基础上提供了通用 CRUD、分页插件、代码生成等功能，进一步简化开发。  
-**追问**
-5. **追问：#{} 和 ${} 有什么区别？**  
-   `#{}` 使用预编译参数，安全防注入；`${}` 是直接拼接 SQL，有注入风险，一般用于动态表名、排序字段等。  
-6. **追问：如何实现多租户或分库分表？**  
-   可以通过 MyBatis 插件或中间件（如 ShardingSphere）实现，在执行 SQL 前根据租户 ID 或分片键路由到不同的数据源/表。  
----
-## 23. Spring 中如何使用定时任务？
-**15秒简答**  
-可以使用 Spring 的 @Scheduled 注解，在启动类上 @EnableScheduling，然后在方法上标注 @Scheduled(cron/fixedRate/fixedDelay) 定义执行规则。  
-**3分钟详答**  
-Spring 提供对定时任务的支持：  
-1. 在启动类或配置类上标注 @EnableScheduling。  
-2. 在需要定时执行的方法上标注 @Scheduled，支持三种方式：  
-   - cron：表达式定义时间。  
-   - fixedRate：固定频率执行，从上次开始时间算起。  
-   - fixedDelay：固定延迟执行，从上次结束时间算起。  
-底层通过 TaskScheduler 调度线程池执行，适合轻量级定时任务；复杂场景可以使用 Quartz 等框架。  
-**追问**
-1. **追问：@Scheduled 默认是单线程执行，如何配置多线程？**  
-   可以自定义 TaskScheduler 线程池，或配置 `spring.task.scheduling.pool.size`。  
-2. **追问：分布式环境下如何避免任务重复执行？**  
-   可以使用分布式锁（如 Redis 锁、Zookeeper 锁）保证同一时刻只有一个实例执行任务。  
----
-## 24. Spring 中的事件机制是怎么用的？
-**15秒简答**  
-通过 ApplicationEventPublisher 发布事件，自定义事件继承 ApplicationEvent，监听器实现 ApplicationListener 或使用 @EventListener 注解，实现解耦的事件驱动模型。  
-**3分钟详答**  
-Spring 的事件机制基于观察者模式：  
-1. 定义事件类，继承 ApplicationEvent，封装事件信息。  
-2. 通过 ApplicationEventPublisher 发布事件。  
-3. 监听器通过实现 ApplicationListener 或在方法上使用 @EventListener 监听事件。  
-典型场景：用户注册后发送邮件、记录日志等，可以将这些操作拆成监听器，主流程只关注注册逻辑。  
-**追问**
-4. **追问：事件监听是同步还是异步？如何异步？**  
-   默认同步，可以通过 @Async 注解或在事件发布线程池中配置异步执行，实现异步事件处理。  
-5. **追问：Spring 事件和消息队列（MQ）有什么区别？**  
-   Spring 事件是进程内消息，轻量但不可跨应用；MQ 是分布式消息，支持跨应用、可靠传输、重试等，适合复杂分布式场景。  
----
-## 25. 如何理解 Spring 的“非侵入式”设计？
-**15秒简答**  
-“非侵入式”指业务代码不需要依赖 Spring 特定 API，可以通过 POJO + 注解/XML 配置完成依赖注入和事务管理，使代码更易测试、易迁移。  
-**3分钟详答**  
-在传统 EJB 等框架中，业务类往往需要实现框架接口或继承框架类，代码与框架强耦合。Spring 通过 IOC 和 AOP，让业务类保持简单 POJO 形式：  
-- 只需要在类上加 @Component/@Service 等注解，或通过 XML 配置，就能让 Spring 管理其生命周期。  
-- 事务、日志等通过代理织入，业务类本身不需要知道 Spring 的存在。  
-这样业务代码可以脱离容器独立测试，也更容易切换到其他框架。  
-**追问**
-1. **追问：那 Spring 注解算不算侵入？**  
-   从严格意义上说，注解也算一种侵入，但相比实现接口、继承类，侵入程度低很多，且可以通过 Java Config 或 XML 替代注解。  
-2. **追问：如何让代码尽量不依赖 Spring？**  
-   使用面向接口编程，业务依赖接口而非实现；通过构造器注入依赖，尽量少用 Spring 特有注解，保留 POJO 风格。  
----
-## 26. Spring 中如何实现文件上传？
-**15秒简答**  
-在 Spring MVC 中，通过 MultipartFile 接收文件，配置 `spring.servlet.multipart.max-file-size` 等属性限制上传大小，Controller 方法中使用 `@RequestParam("file") MultipartFile file` 接收。  
-**3分钟详答**  
-Spring MVC 内置支持文件上传：  
-1. 在表单中设置 `enctype="multipart/form-data"`。  
-2. Controller 方法参数使用 `MultipartFile file` 或 `@RequestPart` 接收文件。  
-3. 通过 `file.getInputStream()`、`file.transferTo()` 等方法保存文件。  
-4. 通过配置限制文件大小、请求大小等。  
-**追问**
-5. **追问：如何防止文件上传漏洞？**  
-   校验文件类型、大小、文件名，避免直接使用用户提供的文件名，限制上传目录权限，避免上传可执行文件。  
-6. **追问：大文件上传如何优化？**  
-   可以使用分片上传、断点续传，前端切片后端合并，或使用对象存储（OSS）提供的上传接口。  
----
-## 27. Spring 如何支持国际化（i18n）？
-**15秒简答**  
-通过 ResourceBundleMessageSource 配置国际化资源文件，根据请求头中的 Accept-Language 或用户选择语言，在页面上通过 `#{}message}` 等方式显示对应语言信息。  
-**3分钟详答**  
-Spring 的国际化支持：  
-1. 定义不同语言的资源文件，如 `messages_zh_CN.properties`、`messages_en_US.properties`。  
-2. 在 Spring 配置 ResourceBundleMessageSource，设置 basename 和编码。  
-3. 在页面（Thymeleaf/JSP）中通过特定语法获取消息。  
-在 Web 环境中，可以使用 LocaleResolver 解析用户区域信息，支持 Cookie、Session、请求头等多种方式。  
-**追问**
-4. **追问：如何动态切换语言？**  
-   可以通过拦截器或 LocaleChangeInterceptor，根据请求参数或用户设置修改 LocaleResolver 中的 Locale。  
-5. **追问：Spring Boot 中如何配置国际化？**  
-   配置 `spring.messages.basename`、`spring.messages.encoding` 等，自动注册 MessageSource。  
----
 ## 28. Spring 中如何使用缓存？
 **15秒简答**  
 Spring 提供缓存抽象，通过 @Cacheable/@CachePut/@CacheEvict 注解，配合 CacheManager（如 RedisCacheManager、ConcurrentMapCacheManager）实现方法级缓存。  
@@ -469,21 +344,6 @@ Spring 缓存抽象支持多种后端，如 Redis、Ehcache、Caffeine 等，业
 5. **追问：如何保证缓存一致性？**  
    常见策略：Cache-Aside（旁路缓存），先更新数据库再删除缓存；或使用消息队列保证最终一致性。  
 ---
-## 29. Spring 中如何实现异步调用？
-**15秒简答**  
-通过 @Async 注解方法，在启动类上 @EnableAsync，Spring 会使用线程池异步执行该方法；可以自定义线程池配置线程数、队列等。  
-**3分钟详答**  
-Spring 对异步方法的支持：  
-1. 在启动类或配置类上 @EnableAsync。  
-2. 在需要异步执行的方法上标注 @Async。  
-3. 可以通过实现 AsyncConfigurer 自定义线程池和异常处理器。  
-适用于日志记录、发送邮件、调用外部接口等耗时但不影响主流程的场景。  
-**追问**
-4. **追问：@Async 方法有返回值怎么办？**  
-   可以返回 `Future` 或 `CompletableFuture`，调用方通过 Future 获取结果。  
-5. **追问：异步方法抛出异常如何处理？**  
-   默认不会向外传播，可以通过实现 AsyncUncaughtExceptionHandler 处理异常，或使用 `CompletableFuture` 的 exceptionally 方法。  
----
 ## 30. 你在项目中遇到过哪些 Spring 相关的坑？
 **15秒简答**  
 常见坑：事务失效、循环依赖、Bean 作用域错误、AOP 自调用失效、多线程事务问题、配置覆盖等，需要结合源码和日志分析定位。  
@@ -498,6 +358,4 @@ Spring 对异步方法的支持：
 1. **追问：你是如何定位这些问题的？**  
    通过 Debug 查看代理对象类型、查看事务管理器是否生效、打印三级缓存状态、查看源码中的条件判断等。  
 2. **追问：有没有读过 Spring 源码？对哪部分比较熟？**  
-   可以结合自己情况回答，例如看过 IOC 容器初始化流程、Bean 生命周期、AOP 代理创建等，并结合前面回答举例说明。  
----
-以上 30 个问题基本覆盖后端实习面试中 Spring 相关的高频考点，建议重点掌握 IOC/AOP、Bean 生命周期、事务传播与失效场景、Spring MVC 流程以及 Spring Boot 自动配置原理，并结合自己项目经历准备一些实战例子。
+   可以结合自己情况回答，例如看过 IOC 容器初始化流程、Bean 生命周期、AOP 代理创建等，
