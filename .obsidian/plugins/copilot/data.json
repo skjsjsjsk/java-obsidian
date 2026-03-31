@@ -24,7 +24,7 @@
   "githubCopilotToken": "",
   "githubCopilotTokenExpiresAt": 0,
   "defaultChainType": "llm_chain",
-  "defaultModelKey": "GLM-4.7|openrouterai",
+  "defaultModelKey": "gpt-5.4|openrouterai",
   "embeddingModelKey": "openai/text-embedding-3-small|openrouterai",
   "temperature": 0.1,
   "maxTokens": 6000,
@@ -302,16 +302,20 @@
       ]
     },
     {
-      "name": "GLM-4.7",
+      "name": "gpt-5.4",
       "provider": "openrouterai",
       "enabled": true,
       "isBuiltIn": false,
-      "baseUrl": "https://open.bigmodel.cn/api/coding/paas/v4",
-      "apiKey": "d87c83e1d3b745dcbb2f26759e18ab89.NZ8GpoYKfuauTItC",
+      "baseUrl": "https://shell.wyzai.top/v1",
+      "apiKey": "sk-RZQ5P7bf9nekerQ5ZE7UzKeHNvbQaxoSCeyImFFO4w7ubYUG",
       "isEmbeddingModel": false,
-      "capabilities": [],
+      "capabilities": [
+        "reasoning",
+        "vision",
+        "websearch"
+      ],
       "stream": true,
-      "maxTokens": 128000
+      "displayName": "自己的"
     }
   ],
   "activeEmbeddingModels": [
