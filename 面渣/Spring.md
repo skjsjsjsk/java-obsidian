@@ -3,22 +3,61 @@
 	- 单例模式: Spring的默认模式. 所有的Bean都是单例的, 它保证了在应用中只有一个实例, 节省内存. 也可以将@Scope注解设置为prototype, 这样就会在获取一次Bean时就创建一个Bean实例
 	- 代理模式: 有两种代理模式, 分别为JDK动态代理和CGLIB代理, 当当前类实现接口时就会使用JDK动态代理, 否则就用CGLIB创建子类来进行代理
 	- 还有模板方法: 比如 JdbcTemplate, 定义了数据库的基本流程: 连接数据库, 执行SQL, 处理结果, 关闭连接 
-- Bean的生命周期: 总共分为5个阶段
-	- 实例化: Spring容器会通过反射调用Bean的构造方法来创建对象实例, 这时候它没有属性
-	- 属性注入: 对象创建好后, Spring会进行依赖注入(也就是根据Bean的属性赋值), 就是通过@Autowired, @Resource注解注入依赖对象, 或者将xml里面的配置填充进去
-	- 初始化: 
-		- 回调Aware接口: 如果 Bean 实现了 `BeanNameAware` 等接口，Spring 会把 Bean 的名字、Factory 等信息注入进去。
-		- 进行BeanPostProcessor前置处理
-		- 执行初始化方法: 
-			- 首先执行@postConstruct下的方法
-			- 在执行InitializingBean接口下的afterPropertiesSet方法
-			- 最后执行自定的init-method
-		- 进行BeanPostProcessor后置处理, 通常在这一步创建好了代理对象, 比如AOP代理
-	- 使用Bean: 比如Controller调用Services, Services调用DAO
-	- 销毁: 当容器关闭或者Bean被移除时, 依次执行
-		- @preDestory下的方法
-		- DisposaableBean接口的destory方法
-		- 执行自定义的destory-method
+
+- Bean的生命周期: 
+	Spring 中 Bean 的生命周期，大致可以分为 **实例化、属性注入、初始化、使用、销毁** 这几个阶段。
+	1. 实例化
+	Spring 容器首先会通过构造方法或者工厂方法来创建 Bean 对象，此时对象已经存在，但是里面的属性还没有赋值。
+	2. 属性注入
+	Spring 会对 Bean 进行依赖注入，也就是给对象中的成员变量赋值，比如通过 `@Autowired`、`@Resource` 注入其他 Bean。
+	3. 初始化
+	- 回调 Aware 接口
+	- 执行 BeanPostProcessor 前置处理
+	- 执行初始化方法
+	- 执行 BeanPostProcessor 后置处理
+	
+	- 其中：
+		- 3.1 回调 Aware 接口
+			- Aware 接口主要分为两类：
+				- BeanFactory 级别, 在`invokeAwareMethods()`方法里直接调用，不经过任何后处理器：
+			    
+			    - `BeanNameAware`
+			    - `BeanClassLoaderAware`
+			    - `BeanFactoryAware`
+		
+			- ApplicationContext 级别, 通过`ApplicationContextAwareProcessor`这个后处理器调用。两者的调用时机和依赖层级不同。
+			    
+			    - `ApplicationContextAware`
+			    - `EnvironmentAware`
+			    - `ResourceLoaderAware`
+			    - `ApplicationEventPublisherAware`
+			    - `MessageSourceAware`
+			
+			- 它的作用是让 Bean 感知 Spring 容器提供的一些基础信息和能力。
+			
+		- 3.2 BeanPostProcessor 前置处理
+			- 会执行 Bean 后置处理器中的前置方法，也就是：
+			- `postProcessBeforeInitialization()`
+			
+		-  3.3 执行初始化方法
+			- 初始化方法的执行顺序一般是：
+			- `@PostConstruct`
+			- `InitializingBean` 接口的 `afterPropertiesSet()`
+			- 自定义的 `init-method`
+			
+		-  3.4 BeanPostProcessor 后置处理
+			- 最后执行：`postProcessAfterInitialization()`
+			- Spring AOP 的代理对象，通常就是在这个阶段创建出来的。上面方法的返回值会替换掉原始Bean，所以你注入的对象和Spring实例化的对象可能不是同一个。
+			
+	4. 使用 Bean
+	- 初始化完成后，Bean 就可以被业务代码正常使用了，比如 Controller 调用 Service，Service 调用 DAO。
+	
+	 5. 销毁
+		- 当容器关闭时，Spring 会销毁 Bean，执行顺序一般是：
+			- `@PreDestroy`
+			- `DisposableBean` 的 `destroy()`
+			- 自定义的 `destroy-method`
+
 - 三级缓存来解决循环依赖问题: 
 	- 三级缓存: 
 		- 一级缓存: 用来存储已经实例化初始化完全的Bean实例
@@ -35,22 +74,31 @@
 		- 为什么不是二级缓存而是三级缓存: 主要为了解决AOP代理的问题
 			- 如果是二级缓存, 那么Bean进行实例化以后就要决定给二级缓存是存储原对象还是代理对象, 这违背了Spring的设计原则, 代理对象应该在初始化时才生成
 			- 如果三级缓存, 有第三季缓存的基础上, 会在第三季缓存里面由工厂去判断是生成一个原对象还是代理对象, 这样保证了不会出现两个Bean对象
-- 关于AOP: AOP就是面向切面编程, 它通过把业务中一些重复的代码抽取出来放到一个独立模块中
+
+		- 哪种循环依赖无法解决: 
+			- 通过构造器进行注入的, 这种对象都未完成实例化, 无法提前暴露引用
+			- 非单例（prototype）作用域的 Bean. 对于 `scope="prototype"` 的 Bean，Spring 每次都会创建一个新的实例，并且不会将其放入缓存中。因此，循环依赖的机制完全失效。
+
+- 关于AOP:AOP（面向切面编程）将横切关注点（日志、事务、权限）封装成切面，在运行时通过动态代理织入到目标方法。它解决了业务代码和系统级代码纠缠在一起的问题，降低重复耦合。  
 	- 应用场景: ==我看看我的代码明天, 举个实例==
+
 - Spring的JDK 动态代理和 CGLIB 代理的区别(Spring AOP是如何实现的(通过动态代理实现)): spring boot2.x后, 默认使用CGLIB代理
 	- JDK动态代理要求目标类必须实现接口, 通过反射机制创建一个实现了目标类的接口的匿名类, 调用方法时被转发到`InvocationHandler`的`invoke`方法里面, 在这里面织入内容, 同时它是JDK原生支持的
-	- CGLIB代理是基于字节码的, 通过ASM字节码动态生成目标类生成子类, 子类可以重写父类的方法, 在子类方法里面织入内容, 因为它是继承, 所以无法代理final类
+	- CGLIB代理是基于字节码的, 通过ASM字节码动态生成目标类的子类, 子类可以重写父类的方法, 在子类方法里面织入内容, 因为它是继承, 所以无法代理final类
+
 - 说一下IOC与DI: IOC就是控制反转, 它把对象创建和依赖管理的权力交给了外部容器进行,  DI就是实现IOC的具体手段, 比如@Autowired注解使用DI进行注入的
 	- IOC成功实现了解耦, 让对象之间不再依赖具体实现, 降低了代码耦合度
+
 - Spring事务: Spring事务分为编程式事务和声明式事务, 编程式事务可以自己控制事务的开启, 结束, 回滚等等, 比较灵活, 而声明式事务就是在方法上加上一个注解, @Transactional, Spring会自动帮我管理该事务的整个生命周期
 	- 如何实现事务的: 通过AOP来实现的, 当在方法上加上@Transactional注解时, Spring会自动创建一个当前Bean的代理对象, 通过这个代理对象来管理事务的进行;          
 	- 声明式事务不需要在代理里面添加额外的代码逻辑, 但是粒度只能到方法级别, 而不能到代码块
-	- 事务传播机制: 就是多个事务方法互相调用时, 事务如何传播;  Spring中有7种事务传播机制, 其中REQUIRED是默认的传播行为
-		- REQUIRED: 如果当前存在事务, 就加入进去; 不存在就新建事务
+	- 事务传播机制: (生效的前提就是通过代理对象调用)就是多个事务方法互相调用时, 事务如何传播;  Spring中有7种事务传播机制, 其中REQUIRED是默认的传播行为
+		- **REQUIRED**: 如果当前存在事务, 就加入进去; 不存在就新建事务
 		- SUPPORTS: 支持当前事务, 如果没有, 就以非事务的方式执行
-		- MANDATORY: 使用当前事务, 如果没有就报错
-		- REQUIRES_NEW: 新建事务, 如果存在事务, 就将该事务挂起
+		- MANDATORY: 使用当前事务, 如果当前没有事务就报错
+		- **REQUIRES_NEW**: 新建事务, 如果存在事务, 就将该事务挂起
 		- NOT_SUPPORTED: 以非事务方式执行操作。如果当前存在事务，把当前事务挂起。
-		- NESTED: 如果存在事务, 就在事务内执行, 如果没有, 就与REQUIRED类似
+		- **NESTED**: 如果存在事务, 就在当前事务中创建一个嵌套事务. 如果没有, 就与REQUIRED类似
 		- NEVER: 以非事务的方式运行, 如果当前存在事务就报错
+
 - 什么是SpringBoot: SpringBoot就是一个基于Spring的快速开发工具包, 在传统的Spring开发种, 我们需要进行大量的xml配置文件, 还要手动管理各自jar包的依赖关系, 非常繁琐, 而SpringBoot通过起步依赖和自动装配解决了这些问题. 举个例子, 我在做RAG的问答助手这个项目的时候, 我在xml文件种引入spring-boot-starter-web, spring-boot-starter-data-redis依赖就自动完成了web和redis的连接, 不需要任何繁琐的配置代码. 同时SpringBoot预设了很多默认的配置, 比如内置Tomcat服务器, 可以直接打包成jar包运行等等. 它解决了传统Spring配置复杂, 管理依赖麻烦的问题.
