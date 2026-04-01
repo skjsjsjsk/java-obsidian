@@ -8,7 +8,7 @@
 	Spring 中 Bean 的生命周期，大致可以分为 **实例化、属性注入、初始化、使用、销毁** 这几个阶段。
 	1. 实例化
 	Spring 容器首先会通过构造方法或者工厂方法来创建 Bean 对象，此时对象已经存在，但是里面的属性还没有赋值。
-	2. 属性注入
+	2. 属性注入 
 	Spring 会对 Bean 进行依赖注入，也就是给对象中的成员变量赋值，比如通过 `@Autowired`、`@Resource` 注入其他 Bean。
 	3. 初始化
 	- 回调 Aware 接口
@@ -102,3 +102,6 @@
 		- NEVER: 以非事务的方式运行, 如果当前存在事务就报错
 
 - 什么是SpringBoot: SpringBoot就是一个基于Spring的快速开发工具包, 在传统的Spring开发种, 我们需要进行大量的xml配置文件, 还要手动管理各自jar包的依赖关系, 非常繁琐, 而SpringBoot通过起步依赖和自动装配解决了这些问题. 举个例子, 我在做RAG的问答助手这个项目的时候, 我在xml文件种引入spring-boot-starter-web, spring-boot-starter-data-redis依赖就自动完成了web和redis的连接, 不需要任何繁琐的配置代码. 同时SpringBoot预设了很多默认的配置, 比如内置Tomcat服务器, 可以直接打包成jar包运行等等. 它解决了传统Spring配置复杂, 管理依赖麻烦的问题.
+- Spring不推荐用@Autowired: 现在一般使用
+	- 一个final关键字；    
+	- 一个@RequiredArgsConstructor注解(放到这个类的最上面)
