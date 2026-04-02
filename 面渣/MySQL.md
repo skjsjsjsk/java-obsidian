@@ -21,9 +21,9 @@
 	- 错误日志: 分析错误的
 	- 慢查询日志: 优化性能的
 	- general log: 所有的SQL语句
-	- redo log(物理日志): 是重做日志，属于InnoDB引擎层, 记录物理层面的数据页的变更, 用于数据库崩溃后, 重启时能通过redo log把提交dan'hai
-	- binlog(逻辑日志): 主从恢复和数据恢复
-	- undo log: 回滚和MVCC
+	- redo log(物理日志): 是重做日志，属于InnoDB引擎层, 记录物理层面的数据页的变更, 用于数据库崩溃后, 重启时能通过redo log把提交但还未刷盘的数据恢复过来
+	- binlog(逻辑日志): 属于MySQL Server层, 记录的是逻辑层面的数据变更, 主要用于主从复制和基于时间点的数据恢复。
+	- undo log: 记录的是数据修改前的值, 用于回滚和MVCC
 - WAL: 先写日志后刷盘, 即在修改操作将内存中的脏页刷入到磁盘前先将修改记录写入redo log, 这样即使系统崩溃, 也能根据redo log 进行重做
 - MySQL崩溃重启后咋样回滚: InnoDB只需要重做最近一次CheckPoint之后修改即可(这不是重新执行SQL, 而是修改数据)
 - redo log的写入过程: 先写到redo log buffer里面, 待事务提交后, 再刷盘到redo log文件中
