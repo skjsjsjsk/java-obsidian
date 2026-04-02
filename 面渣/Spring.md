@@ -4,12 +4,12 @@
 	- 代理模式: 有两种代理模式, 分别为JDK动态代理和CGLIB代理, 当当前类实现接口时就会使用JDK动态代理, 否则就用CGLIB创建子类来进行代理
 	- 还有模板方法: 比如 JdbcTemplate, 定义了数据库的基本流程: 连接数据库, 执行SQL, 处理结果, 关闭连接 
 
-- Bean的生命周期: 
+- ==Bean的生命周期==: 
 	Spring 中 Bean 的生命周期，大致可以分为 **实例化、属性注入、初始化、使用、销毁** 这几个阶段。
 	1. 实例化
-	Spring 容器首先会通过构造方法或者工厂方法来创建 Bean 对象，此时对象已经存在，但是里面的属性还没有赋值。
+		Spring 容器首先会通过反射调用构造方法创造出Bean对象, 此时Bean没有属性
 	2. 属性注入 
-	Spring 会对 Bean 进行依赖注入，也就是给对象中的成员变量赋值，比如通过 `@Autowired`、`@Resource` 注入其他 Bean。
+		Spring 会对 Bean 进行依赖注入，把@Autowired、@Value这些标注的依赖注入进去
 	3. 初始化
 	- 回调 Aware 接口
 	- 执行 BeanPostProcessor 前置处理
@@ -38,15 +38,13 @@
 		- 3.2 BeanPostProcessor 前置处理
 			- 会执行 Bean 后置处理器中的前置方法，也就是：
 			- `postProcessBeforeInitialization()`
+			- @PostConstruct注解的处理就是在这一步完成的
 			
 		-  3.3 执行初始化方法
-			- 初始化方法的执行顺序一般是：
-			- `@PostConstruct`
-			- `InitializingBean` 接口的 `afterPropertiesSet()`
-			- 自定义的 `init-method`
+			- 依次执行`InitializingBean`接口的`afterPropertiesSet`方法和自定义的`init-method`
 			
 		-  3.4 BeanPostProcessor 后置处理
-			- 最后执行：`postProcessAfterInitialization()`
+			- 所有BeanPostProcessor的`postProcessAfterInitialization()`执行
 			- Spring AOP 的代理对象，通常就是在这个阶段创建出来的。上面方法的返回值会替换掉原始Bean，所以你注入的对象和Spring实例化的对象可能不是同一个。
 			
 	4. 使用 Bean
@@ -54,8 +52,8 @@
 	
 	 5. 销毁
 		- 当容器关闭时，Spring 会销毁 Bean，执行顺序一般是：
-			- `@PreDestroy`
-			- `DisposableBean` 的 `destroy()`
+			- `@PreDestroy`注解方法
+			- `DisposableBean` 接口的 `destroy()`
 			- 自定义的 `destroy-method`
 
 - 三级缓存来解决循环依赖问题: 
@@ -86,7 +84,15 @@
 	- JDK动态代理要求目标类必须实现接口, 通过反射机制创建一个实现了目标类的接口的匿名类, 调用方法时被转发到`InvocationHandler`的`invoke`方法里面, 在这里面织入内容, 同时它是JDK原生支持的
 	- CGLIB代理是基于字节码的, 通过ASM字节码动态生成目标类的子类, 子类可以重写父类的方法, 在子类方法里面织入内容, 因为它是继承, 所以无法代理final类
 
-- 说一下IOC与DI: IOC就是控制反转, 它把对象创建和依赖管理的权力交给了外部容器进行,  DI就是实现IOC的具体手段, 比如@Autowired注解使用DI进行注入的
+- ==说一下IOC与DI==: 
+	- IOC就是控制反转, 传统的写法, 如果A类需要用B类, 那就在A类的代码里直接new一个B出来, 创建与管理对象的权力在自己手里, 而**IOC它把对象创建和依赖管理的权力交给了外部容器进**行, 需要B的时候, 容器帮你把B注入
+	- DI就是实现IOC的具体手段, 有三种:
+		- 构造器注入: 通过构造方法注入, 注入的字段可以声明为final, 保证创建出来的对象完整可用
+		- setter注入: 适合可选依赖的场景
+		- 字段注入: 加@Autowired, 但是它无法声明final字段, 不推荐
+	- @Autowired和@Resource的区别: 
+		- @Autowired是Spring提供的注解, 默认按照类型匹配. 如果同类型的Bean有多个, 那么就按照字段名匹配
+		- @Resource是JDK提供的注解, 默认按名称匹配, 如果按名称找不到就按类型匹配
 	- IOC成功实现了解耦, 让对象之间不再依赖具体实现, 降低了代码耦合度
 
 - Spring事务: Spring事务分为编程式事务和声明式事务, 编程式事务可以自己控制事务的开启, 结束, 回滚等等, 比较灵活, 而声明式事务就是在方法上加上一个注解, @Transactional, Spring会自动帮我管理该事务的整个生命周期
