@@ -112,8 +112,14 @@
 		- MANDATORY: 使用当前事务, 如果当前没有事务就报错
 		- **REQUIRES_NEW**: 新建事务, 如果存在事务, 就将该事务挂起
 		- NOT_SUPPORTED: 以非事务方式执行操作。如果当前存在事务，把当前事务挂起。
-		- **NESTED**: 如果存在事务, 就在当前事务中创建一个嵌套事务. 如果没有, 就与REQUIRED类似, 嵌套事务回滚不影响外层事务
+		- **NESTED**: 如果存在事务, 就在当前事务中创建一个嵌套事务. 如果没有, 就与REQUIRED类似, 嵌套事务回滚不影响外层事务, 通常只回滚到保存点
 		- NEVER: 以非事务的方式运行, 如果当前存在事务就报错
+	- @Transactional失效的常见场景: 
+		- 自调用: 同一个类里面, 一个非事务的方法调用了另一个加了该注解的方法, 事务不生效, 需要使用代理对象去调用. 因为Spring事务是通过AOP代理实现的, 子调用使用的是this, 不走代理对象
+		- Spring默认只对public生效, 该注解加在private, protected这些方法上不生效
+		- 异常类型不匹配, 该注解默认只对RuntimeException和Error回滚, 如果事务抛出受检异常（checked exception），需要通过rollbackFor显式指定，否则事务不会回滚
+		- 方法内部使用try-catch捕获了异常, 但是没有抛出, Spring感知不到异常，事务自然不会回滚
+		- Bean没有被Spring管理, 类没有加@Component或@Service等注解，不是Spring管理的Bean，@Transactional不起作用
 
 - 什么是SpringBoot: SpringBoot就是一个基于Spring的快速开发工具包, 在传统的Spring开发种, 我们需要进行大量的xml配置文件, 还要手动管理各自jar包的依赖关系, 非常繁琐, 而SpringBoot通过起步依赖和自动装配解决了这些问题. 举个例子, 我在做RAG的问答助手这个项目的时候, 我在xml文件种引入spring-boot-starter-web, spring-boot-starter-data-redis依赖就自动完成了web和redis的连接, 不需要任何繁琐的配置代码. 同时SpringBoot预设了很多默认的配置, 比如内置Tomcat服务器, 可以直接打包成jar包运行等等. 它解决了传统Spring配置复杂, 管理依赖麻烦的问题.
 - Spring不推荐用@Autowired: 现在一般使用
