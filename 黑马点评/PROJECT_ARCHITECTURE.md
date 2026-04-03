@@ -15,18 +15,18 @@
 
 ## 2. 技术栈
 
-|类别|选型|
-|---|---|
-|运行时|Java 8|
-|应用框架|Spring Boot|
-|Web|Spring MVC|
-|ORM|MyBatis-Plus|
-|数据库|MySQL|
-|缓存/中间件|Redis|
-|分布式锁|Redisson|
-|工具库|Hutool|
-|AOP|Spring AOP / AspectJ Weaver|
-|构建|Maven|
+| 类别     | 选型                          |
+| ------ | --------------------------- |
+| 运行时    | Java 8                      |
+| 应用框架   | Spring Boot                 |
+| Web    | Spring MVC                  |
+| ORM    | MyBatis-Plus                |
+| 数据库    | MySQL                       |
+| 缓存/中间件 | Redis                       |
+| 分布式锁   | Redisson                    |
+| 工具库    | Hutool                      |
+| AOP    | Spring AOP / AspectJ Weaver |
+| 构建     | Maven                       |
 
 补充说明：
 
