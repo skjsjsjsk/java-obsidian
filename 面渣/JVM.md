@@ -100,3 +100,6 @@
 			- (年轻代内存扩大三倍，不代表YGC耗时也会变为三倍，YGC是复制算法，耗时的是复制的阶段，大部分的对象还是被垃圾回收了，所以单次YGC的耗时只是轻微增加)
 
 		- 3. 服务环境 G1 + JDK8
+			- 问题是服务YoungGC 频繁
+			- 原因是-XX：MaxGCPauseMillis(STW时间) 暂停时间目标参数设置较小，导致JVM自动调整降低年轻代的region
+			- 解决办法: 调大-XX：MaxGCPauseMillis 或者 固定年轻代的region的大小
