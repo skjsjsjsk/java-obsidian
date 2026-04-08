@@ -105,3 +105,34 @@ bThread 才继续执行
 
 > `join()` 方法用于让当前线程等待目标线程执行结束。例如在 bThread 中调用 `aThread.join()`，表示 bThread 会阻塞等待 aThread 执行完毕，等 aThread 结束后，bThread 才会继续执行后续代码。底层本质上是通过 `wait()` 实现等待，并在线程结束时唤醒等待线程。
 [Timestamp: 2026/04/08 14:56:48]
+
+**user**: import java.util.concurrent.CountDownLatch;
+
+public class CountDownLatchDemo {
+    public static void main(String[] args) throws InterruptedException {
+        // 计数器 = 1，等待 1 个线程
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Thread bThread = new Thread(() -> {
+            System.out.println("B 线程开始执行");
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("B 线程执行完毕");
+            latch.countDown(); // B 执行完，计数器 -1
+        });
+
+        bThread.start();
+        latch.await(); // A 线程阻塞，直到计数器为 0
+
+        System.out.println("A 线程继续执行");
+    }
+}解释这段代码是如何执行的
+[Context: Notes: 面渣/并发编程.md]
+[Timestamp: 2026/04/08 15:06:47]
+
+**ai**: 
+<errorChunk>An error occurred while processing your request. You can retry your request, or contact us through our help center at help.openai.com if the error persists. Please include the request ID ac3d8dd3-e48f-4dbc-9468-efbe8a1e5e11 in your message.</errorChunk>
+[Timestamp: 2026/04/08 15:06:49]
