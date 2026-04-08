@@ -24,7 +24,7 @@
   "githubCopilotToken": "",
   "githubCopilotTokenExpiresAt": 0,
   "defaultChainType": "llm_chain",
-  "defaultModelKey": "copilot-plus-flash|copilot-plus",
+  "defaultModelKey": "gpt-5.4|openrouterai",
   "embeddingModelKey": "openai/text-embedding-3-small|openrouterai",
   "temperature": 0.1,
   "maxTokens": 6000,
@@ -294,6 +294,17 @@
       "capabilities": [
         "reasoning"
       ]
+    },
+    {
+      "name": "gpt-5.4",
+      "provider": "openrouterai",
+      "enabled": true,
+      "isBuiltIn": false,
+      "baseUrl": "https://shell.wyzai.top/v1",
+      "apiKey": "sk-RZQ5P7bf9nekerQ5ZE7UzKeHNvbQaxoSCeyImFFO4w7ubYUG",
+      "isEmbeddingModel": false,
+      "capabilities": [],
+      "stream": true
     }
   ],
   "activeEmbeddingModels": [
