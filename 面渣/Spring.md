@@ -98,7 +98,7 @@
 		- 构造器注入: 通过构造方法注入, 注入的字段可以声明为final, 保证创建出来的对象完整可用
 		- setter注入: 适合可选依赖的场景
 		- 字段注入: 加@Autowired, 但是它无法声明final字段, 不推荐
-	- @Autowired和@Resource的区别: 
+	- ==@Autowired和@Resource的区别==: 
 		- @Autowired是Spring提供的注解, 默认按照类型匹配. 如果同类型的Bean有多个, 那么就按照字段名匹配
 		- @Resource是JDK提供的注解, 默认按名称匹配, 如果按名称找不到就按类型匹配
 	- IOC成功实现了解耦, 让对象之间不再依赖具体实现, 降低了代码耦合度
