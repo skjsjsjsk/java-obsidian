@@ -41,9 +41,9 @@
 - redo log的写入过程: 先写到redo log buffer里面, 待事务提交后, 再刷盘到redo log文件中
 
 - 为什么要[[两阶段提交与崩溃恢复机制]]: 保证binlog和redo log的一致性, 防止主从复制和事务状态的不一致
-- 慢查询: 
+- **慢查询**: 
 	- 什么是慢查询: 当SQL运行时间超过long_query_time就是慢SQL, 会被记录到慢查询日志中
-	- 如何优化: 
+	- 如何优化慢SQL: 
 		- 启用慢查询日志, 从中找到超过指定执行时间的SQL
 		- 使用 `show processlist`查看当前正在执行的SQL, 从中找到执行时间较长的SQL
 		- 使用EXPLAIN查看慢SQL执行计划, 看有没有用索引, 然后优化
