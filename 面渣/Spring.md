@@ -80,7 +80,7 @@
 		- Spring Boot从2.6版本开始默认禁止循环依赖
 
 - ==关于AOP==:AOP（面向切面编程）把与业务逻辑无关的横切关注点（日志、事务、权限）封装成切面，在运行时通过动态代理织入到目标方法。它解决了业务代码和系统级代码纠缠在一起的问题，降低重复耦合。  
-	- 应用场景: 生活派秒杀下单场景里，业务代码通过 `AopContext.currentProxy()` 取到代理对象，以保证事务方法在“自调用”场景下依然生效。
+	- 应用场景: 生活派秒杀下单场景里，业务代码通过 `getVoucherOrderServiceProxy().createVoucherOrder(voucherOrder);` 获取到代理对象，执行 `createVoucherOrder` 方法, 以保证一个非事务方法调用事务方法的正常调用。
 
 - ==Spring的JDK 动态代理和 CGLIB 代理的区别(Spring AOP是如何实现的(通过动态代理实现))==: 
 	- JDK动态代理要求目标类必须实现接口, 通过反射机制创建一个实现了目标类的接口的匿名类, 调用方法时被转发到`InvocationHandler`的`invoke`方法里面, 在这里面织入内容, 同时它是JDK原生支持的
