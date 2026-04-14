@@ -81,7 +81,7 @@
 
 - ==关于AOP==:AOP（面向切面编程）把与业务逻辑无关的横切关注点（日志、事务、权限）封装成切面，在运行时通过动态代理织入到目标方法。它解决了业务代码和系统级代码纠缠在一起的问题，降低重复耦合。  
 	- 应用场景: 生活派秒杀下单场景里，业务代码通过 
-	 `getVoucherOrderServiceProxy()` 方法会返回 `applicationContext.getBean(IVoucherOrderService.class);` 即从Spring容器获取代理对象, 保证事务注解生效
+	 `getVoucherOrderServiceProxy()` 方法会返回 `applicationContext.getBean(IVoucherOrderService.class);` 也就是该方法会生成代理对象
 	 然后 `getVoucherOrderServiceProxy().createVoucherOrder(voucherOrder);` 获取到代理对象，执行 `createVoucherOrder` 方法, 以保证一个非事务方法调用事务方法的正常调用。
 
 - ==Spring的JDK 动态代理和 CGLIB 代理的区别(Spring AOP是如何实现的(通过动态代理实现))==: 
