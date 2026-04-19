@@ -119,7 +119,7 @@
 	- @Transactional失效的常见场景: 
 		- 自调用: 同一个类里面, 一个非事务的方法调用了另一个加了该注解的方法, 事务不生效, 需要使用代理对象去调用. 因为Spring事务是通过AOP代理实现的, 自调用使用的是this, 不走代理对象
 		- Spring默认只对public生效, 该注解加在private, protected这些方法上不生效
-		- 异常类型不匹配, 该注解默认只对RuntimeException和Error回滚, 如果事务抛出受检异常（checked exception），需要通过rollbackFor显式指定，否则事务不会回滚
+		- 异常类型不匹配, 该注解默认只对RuntimeException和Error回滚, 如果事务抛出受检异常（checked exception），需要通过rollbackFor(默认空数组)显式指定，否则事务不会回滚
 		- 方法内部使用try-catch捕获了异常, 但是没有抛出, Spring感知不到异常，事务自然不会回滚
 		- Bean没有被Spring管理, 类没有加@Component或@Service等注解，不是Spring管理的Bean，@Transactional不起作用
 
