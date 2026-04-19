@@ -11,13 +11,13 @@
 	2. 属性注入 
 		Spring 会对 Bean 进行依赖注入，把@Autowired、@Value这些标注的依赖注入进去
 	3. 初始化
-	- 回调 Aware 接口
+	- Aware接口回调: 如果Bean实现了BeanNameAware、BeanFactoryAware、ApplicationContextAware这些接口，Spring就会把对应的信息放进去
 	- 执行 BeanPostProcessor 前置处理
 	- 执行初始化方法
 	- 执行 BeanPostProcessor 后置处理
 	
 	- 其中：
-		- 3.1 回调 Aware 接口
+		- 3.1 Aware接口回调
 			- Aware 接口主要分为两类：
 				- BeanFactory 级别, 在`invokeAwareMethods()`方法里直接调用，不经过任何后处理器：
 			    
