@@ -92,7 +92,7 @@
 	- 如果目标类实现了接口, 就是用JDK动态代理
 	- 如果目标本身就是接口或者已经是代理类了, 即使proxyTargetClass=true, 也是用JDK动态代理
 	- spring boot2.x默认将spring.aop.proxy-target-class设为true, 所以默认使用CGLIB代理
-- ==Spring AOP和AspectJ的区别==: Spring AOP是运行时通过动态代理实现的, 只能代理Spring管理的Bean, 只支持到方法级别, 而AspectJ 是编译期织入的, 支持到字段级别和构造方法级别, 但是需要额外的编译器
+- ==Spring AOP和AspectJ的区别==: Spring AOP是运行时通过动态代理实现的, 只能代理Spring管理的Bean, 粒度支持到方法级别, 而AspectJ 是编译期织入的, 支持到字段级别和构造方法级别的切面, 但是需要额外的编译器
 
 - ==说一下IOC与DI==: 
 	- IOC就是控制反转, 传统的写法, 如果A类需要用B类, 那就在A类的代码里直接new一个B出来, 创建与管理对象的权力在自己手里, 而**IOC它把对象创建和依赖管理的权力交给了外部容器进**行, 需要B的时候, 容器帮你把B注入
