@@ -301,7 +301,7 @@
       "enabled": true,
       "isBuiltIn": false,
       "baseUrl": "https://shell.wyzai.top/v1",
-      "apiKey": "sk-RZQ5P7bf9nekerQ5ZE7UzKeHNvbQaxoSCeyImFFO4w7ubYUG",
+      "apiKey": "sk-XTsBBRV1aivfB5CFZTq1cGOGM2whLckpbDuGC5uTE46Y487X",
       "isEmbeddingModel": false,
       "capabilities": [],
       "stream": true
@@ -422,7 +422,7 @@
   "defaultConversationNoteName": "{$topic}@{$date}_{$time}",
   "inlineEditCommands": [],
   "projectList": [],
-  "lastDismissedVersion": null,
+  "lastDismissedVersion": "3.2.7",
   "passMarkdownImages": true,
   "enableAutonomousAgent": true,
   "enableCustomPromptTemplating": true,
