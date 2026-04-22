@@ -13,3 +13,7 @@
 ## MySQL InnoDB核心机制解析
 **Time:** 2026-03-22 20:52
 **Summary:** 用户探讨了MySQL中varchar长度对性能的影响、深分页优化方案及文件排序原理。对话深入解析了临键锁解决幻读的必要性及其锁定区间，并详细说明了MVCC Read View的可见性判断规则。最终验证并完善了用户关于锁机制触发条件和事务ID比对算法的笔记总结。
+
+## Java校招面试题逐题点评
+**Time:** 2026-04-22 16:33
+**Summary:** 对话围绕 6 个 Java 校招高频基础题展开，包括多态、包装类、ArrayList/LinkedList、ArrayList 扩容与集合转换、hashCode/equals。用户逐题作答，AI 以资深面试官视角指出回答中的正确点与错误点，补充了更标准的面试回答、常见追问以及每题评分；当前已点评到第 5 题，并准备继续第 6 题 String、StringBuilder、StringBuffer 的区别。
