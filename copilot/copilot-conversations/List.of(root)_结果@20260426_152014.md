@@ -127,3 +127,117 @@ cur.add(root.left);
 
 如果你愿意，我还能继续帮你把这道题里 `List.of(root)`、`new ArrayList<>()`、`ArrayDeque` 这几种写法的区别整理成适合记在 [[11 102二叉树的层序遍历]] 里的笔记。
 [Timestamp: 2026/04/26 15:20:29]
+
+**user**: Queue<TreeNode> queue = new LinkedList<>();
+Queue<TreeNode> queue = new ArrayDeque<>(); 这个对吗
+[Context: Notes: 算法/11 102二叉树的层序遍历.md]
+[Timestamp: 2026/04/26 15:22:59]
+
+**ai**: 对，这两种写法都对。
+
+```java
+Queue<TreeNode> queue = new LinkedList<>();
+Queue<TreeNode> queue = new ArrayDeque<>();
+```
+
+它们都可以作为 `Queue` 来用，支持：
+
+- `add()`
+- `offer()`
+- `poll()`
+- `peek()`
+
+在这道二叉树层序遍历里都能正常做 BFS。
+
+---
+
+### 1. `LinkedList` 可以当队列用
+因为 `LinkedList` 实现了 `Queue` 接口，所以这样写没问题：
+
+```java
+Queue<TreeNode> queue = new LinkedList<>();
+```
+
+特点：
+
+- 底层是链表
+- 头删尾插方便
+- 也允许存 `null`
+
+---
+
+### 2. `ArrayDeque` 也可以当队列用
+```java
+Queue<TreeNode> queue = new ArrayDeque<>();
+```
+
+特点：
+
+- 底层是循环数组
+- 作为队列/双端队列性能通常更好
+- **不允许 `null`**
+
+---
+
+### 3. 这题更推荐 `ArrayDeque`
+在 LeetCode 这种层序遍历题里，一般更推荐：
+
+```java
+Queue<TreeNode> queue = new ArrayDeque<>();
+```
+
+因为：
+
+- 性能通常比 `LinkedList` 更好
+- 更轻量
+- Java 官方也更推荐它作为队列使用
+
+所以实际写题时常见写法是：
+
+```java
+Queue<TreeNode> queue = new ArrayDeque<>();
+queue.offer(root);
+```
+
+---
+
+### 4. 面试里可以怎么说
+如果面试官问你为什么不用 `LinkedList`，你可以答：
+
+- `LinkedList` 和 `ArrayDeque` 都能实现队列
+- 但在普通队列场景下，`ArrayDeque` 通常性能更好，开销更小
+- 所以做 BFS 层序遍历时，一般优先用 `ArrayDeque`
+
+---
+
+### 5. 补一个小细节
+虽然你写：
+
+```java
+queue.add(root);
+TreeNode node = queue.poll();
+```
+
+也是对的，但更规范一点常写：
+
+```java
+queue.offer(root);
+TreeNode node = queue.poll();
+```
+
+因为：
+
+- `offer()` / `poll()` / `peek()` 是更标准的队列接口写法
+- `add()` 在插入失败时可能抛异常
+- `offer()` 更符合“入队”的语义
+
+---
+
+你可以记成一句话：
+
+- `LinkedList` 能用
+- `ArrayDeque` 更推荐
+- BFS 常用 `Queue<TreeNode> queue = new ArrayDeque<>();`
+
+如果你想，我可以顺手帮你把 [[11 102二叉树的层序遍历]] 这篇笔记补成“两个解法 + 队列知识点 + 面试表达”的整理版。
+[Timestamp: 2026/04/26 15:23:14]
