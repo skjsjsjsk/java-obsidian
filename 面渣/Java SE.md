@@ -1,6 +1,12 @@
 - Java数据类型以及对应的包装类和它们各自的大小: 
 	- 分为基本数据类型(八种)和引用数据类型
-		- 基本数据类型: 布尔型(boolean(1或4字节)), 数值型(整型(short(2字节), int(4字节), long(8字节)), 浮点型(float(4字节), double(8字节)), 字节型(byte(1字节))), 字符型(char(2字节))
+		- 基本数据类型: 
+			- 布尔型(boolean(1或4字节)), 
+			- 数值型(
+				- 整型(short(2字节), int(4字节), long(8字节)), 
+				- 浮点型(float(4字节), double(8字节)), 
+				- 字节型(byte(1字节))), 
+			- 字符型(char(2字节))
 		- ![300](assets/Java%20SE/file-20260402142112356.png)
 		- 引用数据类型: 数组, 类, 接口
 	- 包装类: Boolean, Character, Byte, Short, Integer, Long, Float, Double
