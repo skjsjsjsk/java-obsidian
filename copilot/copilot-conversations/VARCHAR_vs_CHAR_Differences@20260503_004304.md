@@ -592,3 +592,84 @@ InnoDB 刷脏页时，不是直接把内存页写到最终数据文件，而是�
 
 我可以给你整理成一版特别适合面试背诵的对比表。
 [Timestamp: 2026/05/03 01:14:18]
+
+**user**: 那如果在写入doublewrite buffer的时候MySQL重启了咋办
+[Context: Notes: 面渣/MySQL.md]
+[Timestamp: 2026/05/03 01:16:32]
+
+**ai**: 也没关系，因为 **写 doublewrite buffer 本身也是为了拿到一份“完整页副本”**。  
+如果在这一步 MySQL 重启了，InnoDB 会根据 **doublewrite buffer 中是否有完整页** 来决定能不能恢复。
+
+你可以分情况理解：
+
+---
+
+## 1. 如果还没写完 doublewrite buffer 就宕机了
+比如一个页正在写到 doublewrite buffer，中途断电了。
+
+这时说明：
+
+- doublewrite buffer 里的这份页副本也可能是不完整的
+- 但此时**真正的数据页通常还没开始覆盖写入**
+- 磁盘上原来的数据页大概率还是旧的、完整的版本
+
+重启后：
+
+- InnoDB 会检查 doublewrite buffer
+- 发现这次写入不完整，就不会拿它去恢复
+- 然后再结合 redo log 来恢复已提交事务的数据
+
+也就是说：
+
+> 只要还没进入“覆盖正式数据页”的阶段，宕机风险相对小，因为正式数据页还没被破坏。
+
+---
+
+## 2. 如果 doublewrite buffer 已经完整写好了，但正式数据页还没写完就宕机
+这是 doublewrite 最主要要解决的场景。
+
+此时：
+
+- doublewrite buffer 中有一份完整页
+- 正式表空间里的页可能只写了一半，发生页撕裂
+
+重启后：
+
+- InnoDB 发现正式页损坏
+- 就从 doublewrite buffer 中拷贝完整页回来
+- 再结合 redo log 做重放恢复
+
+这就是 doublewrite 的核心价值。
+
+---
+
+## 3. 为什么说它安全性更高
+关键点就在于写入顺序：
+
+- 先写 doublewrite buffer
+- 再写正式数据页
+
+所以只有在 **doublewrite buffer 成功写完之后**，InnoDB 才会去覆盖真正的数据页。  
+这样就相当于：
+
+- 在修改正式页之前
+- 先在另一个地方留了一份“保险副本”
+
+---
+
+## 4. 面试里怎么简洁回答
+你可以这样说：
+
+> 如果在写 doublewrite buffer 时 MySQL 重启了，一般不会导致最终数据页损坏，因为这时正式数据页通常还没有开始覆盖写入，磁盘上仍然保留着旧的完整页。  
+> 重启后 InnoDB 会检查 doublewrite buffer 中的内容，如果发现副本不完整，就不会用它恢复，而是保留原页并结合 redo log 进行崩溃恢复。  
+> doublewrite 真正主要防的是：doublewrite buffer 已经写成功，但正式数据页写到一半宕机，导致页撕裂，这时就能用 doublewrite buffer 里的完整页恢复。
+
+---
+
+## 5. 一句话总结
+> **写 doublewrite buffer 时宕机，不怕，因为正式页一般还没被覆盖；写正式页时宕机，才靠 doublewrite 来救。**
+
+---
+
+如果你愿意，我还能继续帮你把这个流程和 **redo log 两阶段提交、刷脏页、checkpoint** 串起来，这样你对 MySQL 崩溃恢复这一整套会非常清楚。
+[Timestamp: 2026/05/03 01:16:48]
