@@ -6,12 +6,12 @@
 
 不要把项目说成“主导企业级 Agent 平台”，更适合的实习生人设是：
 
-> 我是 Java 后端方向，项目是自己在原 RAG 知识库基础上做的 Agent 化改造。我重点做的是工程落地：ES 混合检索、DeepSeek 工具调用、WebFlux + WebSocket 流式返回、Redis 短期状态缓存、MinIO 文档处理，以及超时、降级、引用校验这些脏活。
+> 我是 Java 后端方向，项目是自己在原 RAG 知识库基础上做的 Agent 化改造。我重点做的是工程落地：ES 混合检索、DeepSeek OpenAI 兼容工具调用、WebClient 流式消费、Spring WebSocket 推送、Redis 生成态缓存、MinIO 文档处理，以及超时、降级、引用校验这些脏活。
 
 面试回答建议遵循：
 
 - 总起：先直接抛结论。
-- 细节：必须结合自己的技术栈，比如 Spring Boot 3.4、WebFlux、Mono/Flux、Elasticsearch DSL/knn、Redis Key 过期策略、MinIO、WebSocket、DeepSeek tool_choice。
+- 细节：必须结合自己的技术栈，比如 Spring Boot 3.4、WebClient、Flux 流式消费、Spring WebSocket、Elasticsearch DSL/knn、Redis Key 过期策略、MinIO、Kafka、DeepSeek tool_choice。
 - 问题：讲一个自己测试时发现的小问题。
 - 总结：回到“RAG 升级 Agent”的主线。
 
@@ -22,7 +22,7 @@
 **考察点：** 你是不是为了蹭 Agent 概念，还是确实理解 RAG 的边界。
 
 **话术：**  
-我的理解是，RAG 更适合“一次检索 + 一次生成”的知识问答，但我测试项目时发现，用户问题稍微复杂一点，比如跨多个文档、需要先查文件再查接口、或者检索结果为空时，普通 RAG 就比较被动。所以我在原来的链路上加了 ReAct 风格的 Agent，让模型可以先判断是否需要工具，再调用 ES 检索、文件搜索或外部 API，然后根据 Observation 继续推理。这里我没有完全抛弃 RAG，而是把 RAG 变成 Agent 的一个工具。简单问题仍然走 RAG 快路径，复杂问题才进入 Agent。这样可以避免所有请求都多轮调用模型，导致延迟和 Token 成本暴涨。总结来说，我做 Agent 主要是为了解决“动态决策”和“检索失败后自我修正”，不是单纯换个名词。
+我的理解是，RAG 更适合“一次检索 + 一次生成”的知识问答，但我测试项目时发现，用户问题稍微复杂一点，比如跨多个文档、需要总结知识库、查看知识库规模，或者检索结果为空时，普通 RAG 就比较被动。所以我在原来的链路上加了 ReAct 风格的 Agent，让模型可以先判断是否需要工具，再调用 `search_knowledge`、`generate_summary`、`knowledge_stats` 或 `submit_feedback`，然后根据 Observation 继续推理。这里我没有完全抛弃 RAG，而是把 RAG 变成 Agent 的一个工具。当前实现仍然会先进入 Agent 回合，通过 prompt 白名单减少无意义检索，后续我会考虑再加简单问题的 RAG 快路径。总结来说，我做 Agent 主要是为了解决“动态决策”和“检索失败后继续调整”，不是单纯换个名词。
 
 ### 2. 为什么用 ES 8.10 做 RAG 底座，而不是 Milvus 或 FAISS？
 
@@ -31,19 +31,19 @@
 **话术：**  
 我当时选 ES 8.10，主要是因为这个项目本身就是 Java 后端知识库场景，不只是做纯向量相似度搜索。ES 可以同时支持 DSL 关键词查询、过滤条件、权限字段、文档元数据，以及 `dense_vector` 的 `knn` 向量检索。比如一个 chunk 里我会存 `docId`、`chunkId`、标题、页码、权限标签、原文片段和向量字段，检索时既可以用关键词 `match`，也可以用 `knn`，还可以用 filter 做组织或文档范围限制。Milvus 更偏专门的向量库，FAISS 更偏本地向量索引，对我这个实习项目来说还要额外维护元数据和检索服务。ES 的优势是工程集成简单，Spring Boot 里接入也方便。缺点是极大规模向量检索可能不如专门向量库，但我的项目规模下 ES 更合适。
 
-### 3. 为什么用 Spring WebFlux，而不是传统 Spring MVC？
+### 3. 为什么引入 Spring WebFlux / WebClient，同时又保留 Spring WebSocket？
 
 **考察点：** 你是否真的用到了响应式，而不是简历堆技术栈。
 
 **话术：**  
-我用 WebFlux 不是为了炫技，而是因为 Agent 链路里 IO 等待比较多。一次请求可能要调用 DeepSeek API、查 ES、读 Redis、查 MinIO 元数据，还要通过 WebSocket 持续推送结果。如果用传统 MVC，每个请求更容易占住 servlet 线程等待外部接口返回。WebFlux 里我用 `Mono` 表示单次异步操作，比如一次工具调用；用 `Flux` 表示流式 token 或 Agent step 事件。比如 DeepSeek 返回流式内容时，我可以把 token 包装成 `Flux`，边收到边通过 WebSocket 推给前端。需要注意的是，我没有把所有逻辑都强行响应式化，像文档解析这种可能阻塞的任务，会单独放到异步执行或任务队列里。总结来说，WebFlux 在我的项目里主要解决外部 IO 多、流式返回和长连接并发的问题。
+我这里不是把整个后端改成纯 WebFlux，而是主要用 WebFlux 里的 `WebClient` 去消费 DeepSeek、Embedding、Rerank 这些 OpenAI 兼容接口。Agent 链路里外部 IO 很多，DeepSeek 流式响应可以通过 `bodyToFlux(String.class)` 一边接收一边处理；而浏览器侧仍然用 Spring WebSocket 的 `TextWebSocketHandler` 推送 `chunk`、`tool_call`、`completion` 这些事件。也就是说，WebClient 负责非阻塞地接模型流，Spring WebSocket 负责把结果推给前端。文档解析、MinIO 文件合并、Kafka 消费这些阻塞或耗时任务，我没有强行写成响应式，而是放在文件处理链路或线程池里。总结来说，我用 WebFlux 的点主要是模型 API 流式消费，不会把它包装成全链路响应式架构。
 
-### 4. 为什么选 DeepSeek V4 API，而不是自己部署模型？
+### 4. 为什么选 DeepSeek API，而不是自己部署模型？
 
 **考察点：** 你是否理解实习项目资源边界和 API 工程化。
 
 **话术：**  
-我没有选择自己部署大模型，主要是因为我的项目重点不是训练或推理优化，而是 Java 后端里的 AI 应用落地。DeepSeek V4 API 对我来说更适合验证 Agent 流程，比如多轮对话、流式输出、工具调用和 JSON 参数生成。我在后端主要封装了统一的模型客户端，把 `messages`、`tools`、`tool_choice`、stream 参数都收敛到一层，这样后面换模型也不会影响 Agent 主流程。自己部署模型虽然可控，但需要显存、推理框架、并发服务、量化和监控，实习项目很容易把重点带偏。当然 API 也有问题，比如网络超时、限流、成本和不可控输出，所以我加了 `Mono.timeout`、重试、降级，以及最大 Token 限制。总结就是，我优先把“应用链路”做完整，而不是把精力放在模型部署上。
+我没有选择自己部署大模型，主要是因为我的项目重点不是训练或推理优化，而是 Java 后端里的 AI 应用落地。DeepSeek 的 OpenAI 兼容接口对我来说更适合验证 Agent 流程，比如多轮对话、流式输出、工具调用和 JSON 参数生成。我在后端做了 `LlmProviderRouter`，把 `messages`、`tools`、`tool_choice=auto`、stream 参数收敛到一层，后面也能切到 Qwen、智谱这类兼容 Provider。自己部署模型虽然可控，但需要显存、推理框架、并发服务、量化和监控，实习项目很容易把重点带偏。当然 API 也有问题，比如网络超时、限流、成本和不可控输出，所以我在外层加了 120 秒生成超时、`StreamHandle.cancel()`、Redis 限流和 Token 配额。总结就是，我优先把“应用链路”做完整，而不是把精力放在模型部署上。
 
 ## 二、RAG 到 Agent 演进
 
