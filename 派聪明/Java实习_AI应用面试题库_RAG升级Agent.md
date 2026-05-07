@@ -118,7 +118,7 @@
 **考察点：** 是否考虑真实前端连接问题。
 
 **话术：**  
-我没有把 WebSocket 当成绝对可靠的通道。每次生成会有 generationId，后端会把生成中的 meta、content、refs 存到 Redis，比如 `chat:generation:{id}:meta`、`chat:generation:{id}:content`、`chat:generation:{id}:refs`，还有 `chat:user:{userId}:active_generation`，TTL 大概 30 分钟。前端断线或刷新后，可以根据活跃 generation 拉取快照，恢复已经生成的内容和引用映射。对于已经完成的会话，最终还是以 MySQL 的历史记录为准，Redis 只是生成过程中的短期兜底。这个项目里我没有做复杂的分布式消息重放，但至少避免了刷新页面就完全丢失正在生成的答案。总结来说，WebSocket 只负责实时推送，关键生成态不能只存在内存里。
+我没有把 WebSocket 当成绝对可靠的通道。每次生成会有一个该次回答任务的唯一ID generationId，后端会把生成中的 生成状态meta、已生成内容content、引用映射refs 存到 Redis，比如 `chat:generation:{id}:meta`、`chat:generation:{id}:content`、`chat:generation:{id}:refs`，还有 `chat:user:{userId}:active_generation`，TTL 大概 30 分钟。前端断线或刷新后，可以根据活跃 generation 拉取快照，恢复已经生成的内容和引用映射。对于已经完成的会话，最终还是以 MySQL 的历史记录为准，Redis 只是生成过程中的短期兜底
 
 ## 四、文件、Redis、缓存与一致性
 
