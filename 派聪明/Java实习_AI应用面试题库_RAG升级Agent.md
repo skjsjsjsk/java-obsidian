@@ -212,7 +212,15 @@ ReAct 有最大 4 轮、最多 8 次工具调用，生成整体有 120 秒截止
 **考察点：** 是否知道 Agent 的真实成本问题。
 
 **话术：**  
-Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要带历史上下文、工具描述和 Observation。我现在主要做了四件事。第一是请求前做 Token 估算和配额预占，`UsageQuotaService` 会估算 prompt、tools 和 max completion 的消耗。第二是控制输出长度，DeepSeek 请求会带 `max_tokens`，ReAct 每轮也有最大 completion token。第三是工具结果结构化，只把检索 chunk 的编号、文件名、页码和关键片段给模型，不传整个文件。第四是 Redis 工具结果缓存，重复的 `search_knowledge(query/topK)` 可以复用结果，它主要省 ES/Rerank 的计算和延迟；Token 侧还是要靠上下文裁剪和轮次限制。完整问题路由快路径还是后续优化。总结来说，成本控制的核心是少传无效上下文、限制轮次、缓存热点工具结果。
+Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要带历史上下文、工具描述和 Observation。我现在主要做了四件事。
+
+第一是请求前做 Token 估算和配额预占，`UsageQuotaService` 会估算 prompt、tools 和 max completion 的消耗。
+
+第二是控制输出长度，DeepSeek 请求会带 `max_tokens`，ReAct 每轮也有最大的循环次数
+
+第三是工具结果结构化，只把检索 chunk 的编号、文件名、页码和关键片段给模型，不传整个文件。
+
+第四是 Redis 工具结果缓存，重复的 `search_knowledge(query/topK)` 可以复用结果，它主要省 ES/Rerank 的计算和延迟；Token 侧还是要靠上下文裁剪和轮次限制。完整问题路由快路径还是后续优化。总结来说，成本控制的核心是少传无效上下文、限制轮次、缓存热点工具结果。
 
 ### 26. Agent 输出不可控，怎么做安全边界？
 
