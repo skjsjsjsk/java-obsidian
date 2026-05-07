@@ -95,7 +95,10 @@
 - ==Spring AOP和AspectJ的区别==: Spring AOP是运行时通过动态代理实现的, 只能代理Spring管理的Bean, 粒度支持到方法级别, 而AspectJ 是编译期织入的, 支持到字段级别和构造方法级别的切面, 但是需要额外的编译器
 
 - ==说一下IOC与DI==: 
-	- IOC就是控制反转, 传统的写法, 如果A类需要用B类, 那就在A类的代码里直接new一个B出来, 创建与管理对象的权力在自己手里, 而**IOC它把对象创建和依赖管理的权力交给了外部容器进**行, 需要B的时候, 容器帮你把B注入
+	- IOC就是控制反转.
+		- 传统的对象创建比如对象A依赖对象B, A会自己 new 一个B出来, 这就导致了它们的耦合性很高. 而Spring IOC把创建对象, 依赖管理和对象的生命周期管理的权力交给了Spring容器. 业务代码只负责声明依赖, 比如 @Autowired, @Resource 这种注解, 真正的创建由Spring去完成
+		- Spring容器启动的时候, 就会去读取@Controller, @Component, @Service这些注解或者读取 XML这些配置文件, 然后把这些Bean的元信息封装成一个BeanDefinition, 包括比如Bean的class类型, 是不是单例等等.
+		- 然后就会在 `refresh()` 中创建Bean, 也就是Bean的生命周期, 看上面. 
 	- DI就是实现IOC的具体手段, 有三种:
 		- 构造器注入: 通过构造方法注入, 注入的字段可以声明为final, 保证创建出来的对象完整可用
 		- setter注入: 适合可选依赖的场景
