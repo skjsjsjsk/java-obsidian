@@ -220,23 +220,26 @@ Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要
 
 第三是工具结果结构化，只把检索 chunk 的编号、文件名、页码和关键片段给模型，不传整个文件。
 
-第四是 Redis 工具结果缓存，重复的 `search_knowledge(query/topK)` 可以复用结果，它主要省 ES/Rerank 的计算和延迟；Token 侧还是要靠上下文裁剪和轮次限制。完整问题路由快路径还是后续优化。总结来说，成本控制的核心是少传无效上下文、限制轮次、缓存热点工具结果。
+第四是 Redis 工具结果缓存，重复的 `search_knowledge(query/topK)` 可以复用结果，它主要省 ES/Rerank 的计算和延迟
 
 ### 26. Agent 输出不可控，怎么做安全边界？
 
 **考察点：** 是否知道 AI 应用上线风险。
 
 **话术：**  
-我主要做了几类边界。第一是工具白名单，Agent 只能调用 `AgentToolRegistry` 里注册的 `search_knowledge`、`generate_summary`、`knowledge_stats`、`submit_feedback`，不能自己构造任意接口。第二是参数校验，比如 `topK` 范围、rating 枚举、必填 query 都在后端校验。第三是权限过滤，知识检索必须走 `searchWithPermission`，由 ES filter 控制 userId、orgTag、isPublic。第四是最大轮次和 120 秒超时，避免无限循环。第五是引用映射，回答中的来源要能追到本轮检索 chunk。作为实习项目，我没有做高风险写操作工具。总结来说，Agent 的自由度必须被后端规则框住，尤其不能让模型决定权限边界。
+我主要做了几类边界。
+
+第一是工具白名单，Agent 只能调用 `AgentToolRegistry` 里已经注册的 `search_knowledge`、`generate_summary`、`knowledge_stats`、`submit_feedback` 工具，不能自己构造任意接口。
+
+第二是参数校验，比如 `topK` 范围、rating 枚举、必填 query 都在后端校验。
+
+第三是权限过滤，知识检索必须走 `searchWithPermission`，由 ES filter 控制 userId、orgTag、isPublic。防止召回不该召回的内容
+
+第四是最大轮次和 120 秒超时，避免无限循环。
+
+第五是引用映射，回答中的来源要能追到本轮检索 chunk。
 
 ## 七、Java 后端能力深挖
-
-### 27. 这个项目哪里体现了 Java 后端能力？
-
-**考察点：** 防止你变成“调 API 工程师”。
-
-**话术：**  
-我觉得主要体现在几个地方。第一是后端链路分层，`ChatHandler` 负责 ReAct 循环，`AgentToolRegistry` 负责工具注册和执行，`LlmProviderRouter` 负责 OpenAI 兼容请求，`HybridSearchService` 负责 ES 混合检索。第二是异步和流式处理，模型 API 用 WebClient 的 `Flux` 消费流，前端通过 Spring WebSocket 接收 chunk 和 tool_call。第三是中间件落地，ES 做 DSL/`knn` 检索，Redis 做生成态、工具结果缓存、并发锁和 TTL，MinIO/Kafka 做文件上传后的异步解析链路。第四是异常和状态处理，超时、取消、工具失败、Redis 缓存失败都会降级成可恢复状态。总结来说，这个项目不是只会调用 DeepSeek，而是把 AI 能力接进 Java 后端工程链路里。
 
 ### 28. 模型流式链路里异常怎么统一处理？
 
