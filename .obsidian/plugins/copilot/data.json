@@ -296,7 +296,7 @@
       ]
     },
     {
-      "name": "gpt-5.4",
+      "name": "gpt-5.5",
       "provider": "openrouterai",
       "enabled": true,
       "isBuiltIn": false,
