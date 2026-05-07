@@ -17,3 +17,7 @@
 ## Java校招面试题逐题点评
 **Time:** 2026-04-22 16:33
 **Summary:** 对话围绕 6 个 Java 校招高频基础题展开，包括多态、包装类、ArrayList/LinkedList、ArrayList 扩容与集合转换、hashCode/equals。用户逐题作答，AI 以资深面试官视角指出回答中的正确点与错误点，补充了更标准的面试回答、常见追问以及每题评分；当前已点评到第 5 题，并准备继续第 6 题 String、StringBuilder、StringBuffer 的区别。
+
+## Java单例模式实现
+**Time:** 2026-05-07 22:22
+**Summary:** 用户询问 Java 中单例模式的实现方式，重点涉及饿汉式、懒汉式、双重检查锁、静态内部类和枚举单例。对话进一步解释了 `private static final Singleton INSTANCE = new Singleton();` 是创建类内部唯一实例，普通懒汉式因多线程同时判断并创建对象而线程不安全，以及 `private Singleton() {}` 是私有构造方法，用于禁止外部 new 对象。
