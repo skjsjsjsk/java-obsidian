@@ -105,8 +105,10 @@
 
 **考察点：** 是否知道响应式项目里最常见的坑是乱用阻塞调用。
 
-**话术：**  
-有遇到. 我主要用 WebClient 的 `Flux` 消费模型 API 流，ReAct 主循环是在后端工作线程里跑，WebSocket 还是传统 Spring WebSocket。所以我不会说“全链路响应式”。真正要注意的是不要在 WebSocket 处理线程上等 90 秒以上的模型流，代码里把 ReAct 决策循环放到了单独执行器里；文档解析、MinIO 大文件处理、Kafka 消费这些本来就是偏阻塞或耗时任务，也不放到 WebFlux 的 event loop 主链路。项目里确实还有一些非流式接口会用到 `block(Duration)` 或同步等待，但它们不在 Netty event loop 里。总结来说，我用 WebFlux 的重点是外部模型 IO 的流式消费，而不是为了把所有方法都改成 `Mono`。
+ 因为我这个项目不是全链路的 WebFlux嘛, 所以就没有碰到那种典型的 "Netty event loop 被 block 打满" 的问题, 但是我有注意到我的项目中的那些有阻塞风险的流程. 比如 DeepSeek的流式响应, 这种就适合用 WebClient 的 `Flux` 消费, 但是像PDF解析, MinIO文件合并, 还有ReAct工具调用这些本来就阻塞类型而且耗时的操作, 就不适合. 
+ 
+ 对于上面那些, 我把ReAct放到了一个单独的工作线程里面去跑, 像PDF解析这种走Kafka去异步消费
+
 
 ### 13. 多个工具能不能并发调用？怎么保证顺序？
 
