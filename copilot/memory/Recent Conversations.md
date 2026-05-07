@@ -21,3 +21,7 @@
 ## Java单例模式实现
 **Time:** 2026-05-07 22:22
 **Summary:** 用户询问 Java 中单例模式的实现方式，重点涉及饿汉式、懒汉式、双重检查锁、静态内部类和枚举单例。对话进一步解释了 `private static final Singleton INSTANCE = new Singleton();` 是创建类内部唯一实例，普通懒汉式因多线程同时判断并创建对象而线程不安全，以及 `private Singleton() {}` 是私有构造方法，用于禁止外部 new 对象。
+
+## Java单例模式解析
+**Time:** 2026-05-07 22:40
+**Summary:** 用户围绕 Java 单例模式实现进行学习，重点询问了饿汉式、懒汉式、双重检查锁 DCL、静态内部类和枚举单例的代码含义与线程安全问题。对话详细解释了 `private static final Singleton INSTANCE = new Singleton()`、私有构造方法、懒汉式线程不安全原因，以及 DCL 中 `volatile` 防止指令重排和半初始化对象的作用。
