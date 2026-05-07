@@ -133,7 +133,7 @@
 **考察点：** 是否能说清 Redis Key 设计和过期策略。
 
 **话术：**  
-我在这个项目里没有把 Redis 包装成“长期记忆库”，它主要做短期状态。第一类是生成态，比如 `chat:generation:{id}:meta/content/refs`，存生成状态、已输出内容和引用映射，TTL 大概 30 分钟；还有 `chat:user:{userId}:active_generation`，用于前端刷新后恢复正在生成的回答。第二类是会话短期上下文，比如 `conversation:{conversationId}` 和 `user:{userId}:current_conversation`，TTL 大概 7 天，长期历史还是落 MySQL。第三类是工程辅助，比如上传分片 bitmap：`upload:{userId}:{fileMd5}`，以及聊天限流、Token 配额、反馈 hash 等。Redis Key 都会设置合理过期，也就是 Key 过期策略，避免临时状态堆积。总结来说，Redis 在这里是短期生成态、会话状态和工程辅助，不是工具结果缓存。
+我在这个项目里没有把 Redis 包装成“长期记忆库”，它主要做短期状态和热点结果缓存。第一类是生成态，比如 `chat:generation:{id}:meta/content/refs`，TTL 大概 30 分钟，用于前端刷新后恢复正在生成的回答。第二类是会话短期上下文，比如 `conversation:{conversationId}` 和 `user:{userId}:current_conversation`，TTL 大概 7 天，长期历史还是落 MySQL。第三类是 Agent 工具结果缓存，比如 `agent:tool-result:v1:{toolName}:{hash}`，目前只缓存 `search_knowledge` 和 `knowledge_stats`，分别是 10 分钟和 60 秒；hash 里包含 userId、toolName 和规范化参数，避免跨用户串数据。第四类是上传分片 bitmap、聊天限流、Token 配额等工程辅助。总结来说，Redis 是短期状态和可失效缓存，不是长期记忆库。
 
 ### 17. 知识库更新时，怎么避免 ES 数据不一致？
 
@@ -147,7 +147,7 @@
 **考察点：** 是否处理 Agent 循环和成本浪费。
 
 **话术：**  
-我现在主要靠流程预算来避免 Agent 重复调用工具，而不是 Redis 参数级去重。代码里有 `MAX_REACT_ROUNDS=4` 和 `MAX_REACT_TOOL_CALLS=8`，超过后会把“工具预算已用尽”的约束放回上下文，让模型基于已有 Observation 输出最终回答。每次工具失败也不会直接抛异常，而是作为结构化 tool message 返回给模型，让它决定换 query 还是结束。我测试时发现，模型在检索失败时确实可能换个说法继续查，所以这个预算很重要。这里不能夸大成“我已经做了工具结果去重缓存”，因为当前代码没有。后续如果优化，我会再按 userId、toolName、query hash 做短 TTL 工具结果缓存。总结来说，当前已落地的是轮次和工具次数限制，去重缓存是后续优化点。
+我现在用了两层限制。第一层是流程预算，代码里有 `MAX_REACT_ROUNDS=4` 和 `MAX_REACT_TOOL_CALLS=8`，超过后会让模型基于已有 Observation 输出最终回答。第二层是 Redis 工具结果缓存和并发去重。`AgentToolRegistry` 执行工具前会先规范化参数，比如 `search_knowledge` 只取 `query/topK`，再交给 `AgentToolResultCacheService` 生成包含 userId、toolName、arguments 的 hash key。缓存命中直接复用；未命中会用 `agent:tool-result-lock:v1:` 加 Redis 锁，其他并发请求最多等 800ms 复用结果。只缓存成功且非流式输出的工具结果。总结来说，轮次预算防止 Agent 自旋，工具缓存减少重复 ES/Rerank 查询。
 
 ## 五、DeepSeek 工具调用与容错
 
@@ -193,14 +193,14 @@
 **考察点：** 是否理解延迟来自模型、检索、工具和串行步骤。
 
 **话术：**  
-我主要从已落地和待优化两块讲。已落地的是流式和预算控制：DeepSeek 流式响应用 WebClient 的 `Flux` 消费，再通过 Spring WebSocket 推 `chunk` 和 `tool_call`，用户能看到中间状态；ReAct 有最大 4 轮、最多 8 次工具调用，生成整体有 120 秒截止。检索层会控制 `topK`，并用 ES 初召回加 Rerank，而不是把大量 chunk 都塞给模型。还没落地的是简单问题的 RAG 快路径和工具结果短期缓存，所以面试里要说这是后续优化，不能当成现有成果。总结来说，延迟优化不是只让模型快，而是流式感知、减少无效工具调用、控制召回和限制轮次。
+我主要从已落地和待优化两块讲。已落地的是流式、预算和缓存控制：DeepSeek 流式响应用 WebClient 的 `Flux` 消费，再通过 Spring WebSocket 推 `chunk` 和 `tool_call`，用户能看到中间状态；ReAct 有最大 4 轮、最多 8 次工具调用，生成整体有 120 秒截止。检索层会控制 `topK`，并用 ES 初召回加 Rerank，而不是把大量 chunk 都塞给模型。工具层对 `search_knowledge` 做 10 分钟 Redis 结果缓存，对 `knowledge_stats` 做 60 秒缓存，并用短锁减少并发重复查询。还没落地的是简单问题的 RAG 快路径。总结来说，延迟优化不是只让模型快，而是流式感知、缓存复用、控制召回和限制轮次。
 
 ### 25. Token 成本暴涨怎么解决？
 
 **考察点：** 是否知道 Agent 的真实成本问题。
 
 **话术：**  
-Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要带历史上下文、工具描述和 Observation。我现在主要做了三件事。第一是请求前做 Token 估算和配额预占，`UsageQuotaService` 会估算 prompt、tools 和 max completion 的消耗，避免无预算时继续调用。第二是控制输出长度，DeepSeek 请求会带 `max_tokens`，ReAct 每轮也有最大 completion token。第三是工具结果结构化，只把检索 chunk 的编号、文件名、页码和关键片段给模型，不传整个文件。当前还没有 Redis 工具结果缓存，也没有完整问题路由快路径，这两块是后续成本优化方向。总结来说，成本控制的核心是少传无效上下文、限制轮次和提前做配额控制。
+Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要带历史上下文、工具描述和 Observation。我现在主要做了四件事。第一是请求前做 Token 估算和配额预占，`UsageQuotaService` 会估算 prompt、tools 和 max completion 的消耗。第二是控制输出长度，DeepSeek 请求会带 `max_tokens`，ReAct 每轮也有最大 completion token。第三是工具结果结构化，只把检索 chunk 的编号、文件名、页码和关键片段给模型，不传整个文件。第四是 Redis 工具结果缓存，重复的 `search_knowledge(query/topK)` 可以复用结果，它主要省 ES/Rerank 的计算和延迟；Token 侧还是要靠上下文裁剪和轮次限制。完整问题路由快路径还是后续优化。总结来说，成本控制的核心是少传无效上下文、限制轮次、缓存热点工具结果。
 
 ### 26. Agent 输出不可控，怎么做安全边界？
 
@@ -216,7 +216,7 @@ Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要
 **考察点：** 防止你变成“调 API 工程师”。
 
 **话术：**  
-我觉得主要体现在几个地方。第一是后端链路分层，`ChatHandler` 负责 ReAct 循环，`AgentToolRegistry` 负责工具注册和执行，`LlmProviderRouter` 负责 OpenAI 兼容请求，`HybridSearchService` 负责 ES 混合检索。第二是异步和流式处理，模型 API 用 WebClient 的 `Flux` 消费流，前端通过 Spring WebSocket 接收 chunk 和 tool_call。第三是中间件落地，ES 做 DSL/`knn` 检索，Redis 做生成态和 TTL，MinIO/Kafka 做文件上传后的异步解析链路。第四是异常和状态处理，超时、取消、工具失败都会变成可恢复状态。总结来说，这个项目不是只会调用 DeepSeek，而是把 AI 能力接进 Java 后端工程链路里。
+我觉得主要体现在几个地方。第一是后端链路分层，`ChatHandler` 负责 ReAct 循环，`AgentToolRegistry` 负责工具注册和执行，`LlmProviderRouter` 负责 OpenAI 兼容请求，`HybridSearchService` 负责 ES 混合检索。第二是异步和流式处理，模型 API 用 WebClient 的 `Flux` 消费流，前端通过 Spring WebSocket 接收 chunk 和 tool_call。第三是中间件落地，ES 做 DSL/`knn` 检索，Redis 做生成态、工具结果缓存、并发锁和 TTL，MinIO/Kafka 做文件上传后的异步解析链路。第四是异常和状态处理，超时、取消、工具失败、Redis 缓存失败都会降级成可恢复状态。总结来说，这个项目不是只会调用 DeepSeek，而是把 AI 能力接进 Java 后端工程链路里。
 
 ### 28. 模型流式链路里异常怎么统一处理？
 
@@ -230,14 +230,14 @@ Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要
 **考察点：** 企业知识库绕不开多用户和越权问题。
 
 **话术：**  
-我的思路是权限过滤必须在 ES 查询阶段做，而不是检索回来后再让模型判断。每个 chunk 写入 ES 时会带上权限相关元数据，比如 userId、orgTag、isPublic。Agent 调 `search_knowledge` 时不会让模型传权限范围，而是后端用当前登录 userId 调 `HybridSearchService.searchWithPermission`，在 DSL/`knn` 查询里拼权限 filter，只返回当前用户能看的 chunk。这样模型拿到的 Observation 本身就是过滤后的结果。DeepSeek 不知道用户权限，也不能让它决定能不能看某个文件。当前没有 Redis 工具结果缓存，所以也不存在跨用户复用工具缓存；如果后续做缓存，Key 一定要带 userId 或 orgTag。总结来说，权限要在后端和 ES 层解决，不能交给大模型。
+我的思路是权限过滤必须在 ES 查询阶段做，而不是检索回来后再让模型判断。每个 chunk 写入 ES 时会带上权限相关元数据，比如 userId、orgTag、isPublic。Agent 调 `search_knowledge` 时不会让模型传权限范围，而是后端用当前登录 userId 调 `HybridSearchService.searchWithPermission`，在 DSL/`knn` 查询里拼权限 filter，只返回当前用户能看的 chunk。工具结果缓存也要防串数据，所以 `AgentToolResultCacheService` 构造 key 时会把 userId、toolName 和规范化参数一起序列化后做 SHA-256，不同用户不会复用同一个检索结果。总结来说，权限要在后端和 ES 层解决，缓存层也必须带用户隔离。
 
 ### 30. 如果面试官问你和 Dify / LangChain 有什么区别，怎么答？
 
 **考察点：** 是否了解行业工具，也能解释自己项目价值。
 
 **话术：**  
-我会先承认 Dify、LangChain 这类框架更成熟，内置了很多 Agent、RAG、工作流能力。我这个项目不是要重复造一个完整平台，而是为了学习和落地 Java 后端里的 Agent 核心链路。我自己实现的部分更偏底层工程：工具注册怎么设计、DeepSeek 的 `tool_choice=auto` 和 `tool_calls` 怎么解析、ES 的 DSL 和 `knn` 怎么融合、WebClient 流式响应怎么转成 Spring WebSocket 事件、Redis 怎么存 generation 快照。用现成框架当然更快，但很多细节容易变成配置黑盒。自己改一遍后，我能讲清楚一次 Agent 从用户问题到工具调用、再到 Observation 和最终回答的完整过程。总结来说，我不是说自己比框架强，而是这个项目能证明我理解 AI 应用的后端落地细节。
+我会先承认 Dify、LangChain 这类框架更成熟，内置了很多 Agent、RAG、工作流能力。我这个项目不是要重复造一个完整平台，而是为了学习和落地 Java 后端里的 Agent 核心链路。我自己实现的部分更偏底层工程：工具注册怎么设计、DeepSeek 的 `tool_choice=auto` 和 `tool_calls` 怎么解析、ES 的 DSL 和 `knn` 怎么融合、WebClient 流式响应怎么转成 Spring WebSocket 事件、Redis 怎么存 generation 快照和工具结果缓存。用现成框架当然更快，但很多细节容易变成配置黑盒，比如缓存 key 如何带 userId、并发锁失败怎么 fail-open。自己改一遍后，我能讲清楚一次 Agent 从用户问题到工具调用、再到 Observation 和最终回答的完整过程。
 
 ## 八、复盘与实习生人设题
 
@@ -246,14 +246,14 @@ Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要
 **考察点：** 是否有真实实践，不是包装项目。
 
 **话术：**  
-我踩过最大的坑是，一开始我以为 Agent 只要接上 tools 就会稳定变强，后来测试发现模型有时会跳过检索直接回答，或者检索失败后反复换说法调用 `search_knowledge`，延迟和 Token 都会上去。我的解决方式不是继续堆 prompt，而是加边界：系统 prompt 明确“知识库优先”和跳过检索白名单，后端限制最大 4 轮 ReAct、最多 8 次工具调用，超时后取消流，工具失败也作为 Observation 返回。Redis 只负责生成态恢复，不负责工具结果缓存。这个坑让我意识到，Agent 不是替代 RAG，而是把 RAG 工具化后再加决策能力。总结来说，我现在会更强调边界控制，而不是所有问题都 Agent 化。
+我踩过最大的坑是，一开始我以为 Agent 只要接上 tools 就会稳定变强，后来测试发现模型有时会跳过检索直接回答，或者检索失败后反复换说法调用 `search_knowledge`，延迟和 Token 都会上去。我的解决方式不是继续堆 prompt，而是加边界：系统 prompt 明确“知识库优先”和跳过检索白名单，后端限制最大 4 轮 ReAct、最多 8 次工具调用，超时后取消流，工具失败也作为 Observation 返回。后来我又补了 `AgentToolResultCacheService`，对 `search_knowledge` 和 `knowledge_stats` 做短 TTL 结果缓存，并用 Redis 锁处理并发去重。这个坑让我意识到，Agent 不是替代 RAG，而是把 RAG 工具化后再加决策和成本控制。
 
 ### 32. 如果让你继续优化这个项目，你会优先做什么？
 
 **考察点：** 是否有后续思考和工程判断。
 
 **话术：**  
-如果继续优化，我会优先做评测集和 Trace 可视化。现在很多 AI 项目容易只看 demo，真正面试或上线时说不清效果。我会把问题分成简单问答、多文档总结、检索失败、无答案、知识库统计几类，分别统计引用正确率、平均延迟、平均工具调用次数和失败原因。Trace 可视化则是为了看每次 Agent 为什么调用某个工具、ES 查了什么 DSL 或 `knn`、返回了哪些 chunk、最终答案引用了哪些证据。第二步我会做问题路由快路径和工具结果短 TTL 缓存，避免简单问题也走完整 ReAct。总结来说，我下一步不会急着加更多工具，而是先把效果评估和问题定位做好。
+如果继续优化，我会优先做评测集和 Trace 可视化。现在很多 AI 项目容易只看 demo，真正面试或上线时说不清效果。我会把问题分成简单问答、多文档总结、检索失败、无答案、知识库统计几类，分别统计引用正确率、平均延迟、平均工具调用次数和失败原因。Trace 可视化则是为了看每次 Agent 为什么调用某个工具、ES 查了什么 DSL 或 `knn`、返回了哪些 chunk、最终答案引用了哪些证据。工具结果缓存我已经做了基础版，下一步会补命中率、等待超时次数、缓存失效等指标；另外再做简单问题路由快路径，避免所有问题都走完整 ReAct。总结来说，我下一步不会急着加更多工具，而是先把效果评估和问题定位做好。
 
 ## 备用追问清单
 
@@ -295,7 +295,9 @@ Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要
 ### Redis / MinIO / 文件链路
 
 - Redis 里哪些 Key 设置 TTL？为什么？
-- 当前为什么没有做工具结果缓存？如果后续做，Key 里为什么必须带 userId 或 orgTag？
+- 工具结果缓存 Key 怎么设计？为什么要把 userId、toolName、规范化参数放进 hash？
+- 为什么只缓存 `search_knowledge` 和 `knowledge_stats`，不缓存 `generate_summary`？
+- Redis 工具缓存锁获取失败或缓存解析失败时怎么降级？
 - Redis 里的短期上下文和 MySQL 的历史记录有什么区别？
 - MinIO 存原文件，ES 存 chunk，MySQL 存什么？
 - 文件上传成功但解析失败怎么办？
@@ -328,7 +330,7 @@ Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要
 
 - 不要说“我们团队主导了 Agent 平台”，因为这是个人项目，容易被追问崩。
 - 不要说“准确率提升 80%”，除非你有真实评测集和统计口径。
-- 不要把 Redis 说成长期记忆库或工具结果缓存，Redis 在这里主要是生成态、短期会话、上传分片和限流配额。
+- 不要把 Redis 说成长期记忆库；Redis 在这里主要是生成态、短期会话、上传分片、限流配额和短 TTL 工具结果缓存。
 - 不要说 WebFlux 一定比 Spring MVC 快，应该说你主要用 WebClient/Flux 消费模型 API 流式响应。
 - 不要说 Function Calling 是模型调用函数，正确说法是模型生成工具调用意图，后端执行。
 - 不要把 Agent 包装成万能，应该强调路由、边界、降级和成本控制。
