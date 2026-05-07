@@ -95,8 +95,11 @@
 
 **考察点：** 是否理解流式输出不等于最终一次性返回。
 
-**话术：**  
-我把 Agent 的输出拆成两类事件：一类是模型 token 流，一类是 Agent 工具状态。模型 API 这边用 WebClient 的 `bodyToFlux(String.class)` 消费 DeepSeek 流式响应，每收到一段内容就追加到 Redis 生成态，并通过 `ChatSessionRegistry.sendJsonToUser` 推给前端 `chunk` 事件。如果模型中间返回 `tool_calls`，后端会先推 `tool_call` 状态，比如正在检索知识库、工具完成或失败，这样前端不会空等。这里要说清楚：我的 WebSocket 用的是 Spring `TextWebSocketHandler`，不是 WebFlux 响应式 WebSocket 那套接口。我测试时发现，如果只在最终完成时返回，用户会以为系统卡住，所以中间状态必须推出来。总结来说，不卡顿不是靠模型更快，而是靠流式 token 和工具事件拆开推。
+首先就是, 我这里不是把Agent的全部结果最后一次性返回, 而是把输出拆分为了两类事件: 一种是模型生成的token流, 另一种是Agent执行过程中调用的工具的执行状态
+
+具体来说的话就是, 我后端用了WebClient去消费DeepSeek的流式响应, 只要收到了模型的回答, 那么就会把它保存到Redis的生成态里面, 然后使用WebSocket推送给前端, 前端做打字机式的输出
+
+在这个期间, 如果模型返回了一个tool_calls, 就说明它要调用工具
 
 ### 12. WebFlux 里有没有遇到阻塞问题？
 
