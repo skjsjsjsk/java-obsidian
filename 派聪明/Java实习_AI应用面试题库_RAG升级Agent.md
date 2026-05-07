@@ -157,7 +157,9 @@
 **考察点：** 是否知道工具调用是模型产出参数，后端执行工具。
 
 **话术：**  
-我对接时是按 OpenAI 兼容 Chat Completion 的 tools 格式来做。后端有 `AgentToolRegistry`，把工具注册成 name、description 和 JSON Schema，比如 `search_knowledge` 只需要 `query` 和 `topK`，`generate_summary` 需要 `topic` 和 `maxDocs`。请求 DeepSeek 时，`LlmProviderRouter` 会带上 `tools` 工具列表，并设置 `tool_choice=auto`，由模型自行判断该轮是否需要返回 `tool_calls`。模型返回后，而是在 Java 后端解析函数名和 arguments，再校验工具白名单；未知工具名会直接报“未注册的工具”。执行结果回传给模型继续生成。
+我对接时是按 OpenAI 兼容 Chat Completion 的 tools 格式来做。后端有 `AgentToolRegistry`，把工具注册成 name、description 和 JSON Schema，比如 `search_knowledge` 只需要 `query` 和 `topK`。
+
+请求 DeepSeek 时，`LlmProviderRouter` 会带上 `tools` 工具列表，并设置 `tool_choice=auto`，由模型自行判断该轮是否需要返回 `tool_calls`。模型返回后，在 Java 后端解析函数名和 arguments，再校验工具白名单, 参数是否合法, 校验用户权限, 进行ES混合检索, 把结果包装成tool message, 执行结果回传给模型继续生成。
 
 ### 20. DeepSeek 超时、限流或者不调用工具怎么办？
 
