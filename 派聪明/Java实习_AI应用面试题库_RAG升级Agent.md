@@ -157,7 +157,7 @@
 **考察点：** 是否知道工具调用是模型产出参数，后端执行工具。
 
 **话术：**  
-我对接时是按 OpenAI 兼容 Chat Completion 的 tools 格式来做。后端有 `AgentToolRegistry`，把工具注册成 name、description 和 JSON Schema，比如 `search_knowledge` 只需要 `query` 和 `topK`，`generate_summary` 需要 `topic` 和 `maxDocs`。请求 DeepSeek 时，`LlmProviderRouter` 会带上 `tools`，并设置 `tool_choice=auto`，由模型判断是否返回 `tool_calls`。模型返回后，我不会直接让它接触 ES，而是在 Java 后端解析函数名和 arguments，再执行白名单工具；未知工具名会直接报“未注册的工具”。执行结果会作为 role=tool 的 message，带 `tool_call_id` 回传给模型继续生成。总结来说，Function Calling 不是模型真的调用函数，而是模型生成结构化调用意图，真正执行权在后端。
+我对接时是按 OpenAI 兼容 Chat Completion 的 tools 格式来做。后端有 `AgentToolRegistry`，把工具注册成 name、description 和 JSON Schema，比如 `search_knowledge` 只需要 `query` 和 `topK`，`generate_summary` 需要 `topic` 和 `maxDocs`。请求 DeepSeek 时，`LlmProviderRouter` 会带上 `tools`，并设置 `tool_choice=auto`，由模型自行判断该轮是否需要返回 `tool_calls`。模型返回后，我不会直接让它接触 ES，而是在 Java 后端解析函数名和 arguments，再执行白名单工具；未知工具名会直接报“未注册的工具”。执行结果会作为 role=tool 的 message，带 `tool_call_id` 回传给模型继续生成。总结来说，Function Calling 不是模型真的调用函数，而是模型生成结构化调用意图，真正执行权在后端。
 
 ### 20. DeepSeek 超时、限流或者不调用工具怎么办？
 
