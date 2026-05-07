@@ -157,14 +157,14 @@
 **考察点：** 是否知道工具调用是模型产出参数，后端执行工具。
 
 **话术：**  
-我对接时是按 OpenAI 兼容 Chat Completion 的 tools 格式来做。后端有 `AgentToolRegistry`，把工具注册成 name、description 和 JSON Schema，比如 `search_knowledge` 只需要 `query` 和 `topK`，`generate_summary` 需要 `topic` 和 `maxDocs`。请求 DeepSeek 时，`LlmProviderRouter` 会带上 `tools`，并设置 `tool_choice=auto`，由模型自行判断该轮是否需要返回 `tool_calls`。模型返回后，我不会直接让它接触 ES，而是在 Java 后端解析函数名和 arguments，再校验工具白名单；未知工具名会直接报“未注册的工具”。执行结果会作为 role=tool 的 message，带 `tool_call_id` 回传给模型继续生成。总结来说，Function Calling 不是模型真的调用函数，而是模型生成结构化调用意图，真正执行权在后端。
+我对接时是按 OpenAI 兼容 Chat Completion 的 tools 格式来做。后端有 `AgentToolRegistry`，把工具注册成 name、description 和 JSON Schema，比如 `search_knowledge` 只需要 `query` 和 `topK`，`generate_summary` 需要 `topic` 和 `maxDocs`。请求 DeepSeek 时，`LlmProviderRouter` 会带上 `tools` 工具列表，并设置 `tool_choice=auto`，由模型自行判断该轮是否需要返回 `tool_calls`。模型返回后，而是在 Java 后端解析函数名和 arguments，再校验工具白名单；未知工具名会直接报“未注册的工具”。执行结果回传给模型继续生成。
 
 ### 20. DeepSeek 超时、限流或者不调用工具怎么办？
 
 **考察点：** 是否有真实 API 容错经验。
 
 **话术：**  
-我遇到过两类问题：一种是 API 网络超时或返回慢，另一种是明明该查知识库，模型却直接回答。超时这块，当前代码不是在工具层单独包响应式超时，而是在 `ChatHandler` 里做 120 秒生成截止，等待流式 ReAct 回合时会短轮询 `CompletableFuture`，超时或用户点停止就调用 `StreamHandle.cancel()`。限流和 Token 不足会通过配额服务、错误事件和 WebSocket 返回给前端。模型不调用工具的问题，我现在主要靠 prompt 强约束：除严格白名单外，问题默认要先 `search_knowledge`；`tool_choice` 当前仍是 `auto`，还没有落地强制工具调用。总结来说，大模型 API 要按不稳定外部服务处理，同时不能夸大当前实现。
+我遇到过两类问题：一种是 API 网络超时或返回慢，另一种是明明该查知识库，模型却直接回答。超时这块，当前代码不是在工具层单独包响应式超时，而是在 `ChatHandler` 里做 120 秒生成截止，等待流式 ReAct 回合时会短轮询 `CompletableFuture`，超时或用户点停止就调用 `StreamHandle.cancel()`。限流和 Token 不足会通过配额服务、错误事件和 WebSocket 返回给前端。模型不调用工具的问题，我现在主要靠 prompt 强约束：除严格白名单外，问题默认要先 `search_knowledge`；`tool_choice` 当前仍是 `auto`，还没有落地强制工具调用。
 
 ### 21. 工具参数不合法怎么办？
 
