@@ -196,9 +196,16 @@
 ### 24. Agent 链路变长，延迟怎么优化？
 
 **考察点：** 是否理解延迟来自模型、检索、工具和串行步骤。
+  
+目前是流式响应、预算和缓存控制：
 
-**话术：**  
-我主要从已落地和待优化两块讲。已落地的是流式、预算和缓存控制：DeepSeek 流式响应用 WebClient 的 `Flux` 消费，再通过 Spring WebSocket 推 `chunk` 和 `tool_call`，用户能看到中间状态；ReAct 有最大 4 轮、最多 8 次工具调用，生成整体有 120 秒截止。检索层会控制 `topK`，并用 ES 初召回加 Rerank，而不是把大量 chunk 都塞给模型。工具层对 `search_knowledge` 做 10 分钟 Redis 结果缓存，对 `knowledge_stats` 做 60 秒缓存，并用短锁减少并发重复查询。还没落地的是简单问题的 RAG 快路径。总结来说，延迟优化不是只让模型快，而是流式感知、缓存复用、控制召回和限制轮次。
+DeepSeek 流式响应用 WebClient 的 `Flux` 消费，再通过 Spring WebSocket 推 `chunk` 和 `tool_call`，用户能看到中间状态；
+
+ReAct 有最大 4 轮、最多 8 次工具调用，生成整体有 120 秒截止。
+
+检索层会控制 `topK`，并用 ES 初召回加 Rerank，而不是把大量 chunk 都塞给模型。
+
+工具层对 `search_knowledge` 做 10 分钟 Redis 结果缓存，对 `knowledge_stats` 做 60 秒缓存，并用短锁减少并发重复查询。
 
 ### 25. Token 成本暴涨怎么解决？
 
