@@ -85,8 +85,8 @@
 	 然后 `getVoucherOrderServiceProxy().createVoucherOrder(voucherOrder);` 获取到代理对象，执行 `createVoucherOrder` 方法, 以保证一个非事务方法调用事务方法的正常调用。
 
 - ==Spring的JDK 动态代理和 CGLIB 代理的区别(Spring AOP是如何实现的(通过动态代理实现))==: 
-	- JDK动态代理要求目标类必须实现接口, 通过反射机制创建一个实现了目标类的接口的匿名类, 调用方法时被转发到`InvocationHandler`的`invoke`方法里面, 在这里面织入内容, 同时它是JDK原生支持的
-	- CGLIB代理是基于字节码的, 通过ASM字节码动态生成目标类的子类来创建代理对象. 通过继承来实现, 子类可以重写父类的方法, 在子类方法里面织入内容, 因为它是继承, 所以无法代理final类
+	- JDK动态代理要求目标类必须实现接口, 它会在运行时生成一个代理类, 继承 `proxy` 并且 实现目标类的接口, 调用方法时被转发到`InvocationHandler`的`invoke`方法里面, 在这里面织入内容, 同时它是JDK原生支持的
+	- CGLIB代理是基于字节码的, 通过ASM字节码动态生成目标类的子类来创建代理对象. 通过继承来实现, 子类可以重写父类的方法, 在子类方法里面织入内容, 因为它是继承, 所以无法代理被final, private, static修饰的类
 - ==选择策略==: 
 	- 如果设置了proxyTargetClass=true，或者目标类没有实现任何接口，使用CGLIB
 	- 如果目标类实现了接口, 就是用JDK动态代理
