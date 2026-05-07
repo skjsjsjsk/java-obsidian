@@ -106,7 +106,7 @@
 **考察点：** 是否知道响应式项目里最常见的坑是乱用阻塞调用。
 
 **话术：**  
-有遇到. 我主要用 WebClient 的 `Flux` 消费模型 API 流，ReAct 主循环是在后端工作线程里跑，WebSocket 还是传统 Spring WebSocket。所以我不会说“全链路响应式”。真正要注意的是不要在 WebSocket 处理线程上等 90 秒以上的模型流，代码里把 ReAct 决策循环放到了单独执行器里；文档解析、MinIO 大文件处理、Kafka 消费这些本来就是偏阻塞或耗时任务，也不放到模型流式消费链路里。项目里确实还有一些非流式接口会用到 `block(Duration)` 或同步等待，但它们不在 Netty event loop 里。总结来说，我用 WebFlux 的重点是外部模型 IO 的流式消费，而不是为了把所有方法都改成 `Mono`。
+有遇到. 我主要用 WebClient 的 `Flux` 消费模型 API 流，ReAct 主循环是在后端工作线程里跑，WebSocket 还是传统 Spring WebSocket。所以我不会说“全链路响应式”。真正要注意的是不要在 WebSocket 处理线程上等 90 秒以上的模型流，代码里把 ReAct 决策循环放到了单独执行器里；文档解析、MinIO 大文件处理、Kafka 消费这些本来就是偏阻塞或耗时任务，也不放到 WebFlux 的 event loop 主链路。项目里确实还有一些非流式接口会用到 `block(Duration)` 或同步等待，但它们不在 Netty event loop 里。总结来说，我用 WebFlux 的重点是外部模型 IO 的流式消费，而不是为了把所有方法都改成 `Mono`。
 
 ### 13. 多个工具能不能并发调用？怎么保证顺序？
 
