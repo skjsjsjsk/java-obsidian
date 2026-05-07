@@ -148,7 +148,11 @@
 **考察点：** 是否处理 Agent 循环和成本浪费。
 
 **话术：**  
-我现在用了两层限制。第一层是流程预算，代码里有 `MAX_REACT_ROUNDS=4` 和 `MAX_REACT_TOOL_CALLS=8`，超过后会让模型基于已有 Observation 输出最终回答。第二层是 Redis 工具结果缓存和并发去重。`AgentToolRegistry` 执行工具前会先规范化参数，比如 `search_knowledge` 只取 `query/topK`，再交给 `AgentToolResultCacheService` 生成包含 userId、toolName、arguments 的 hash key。缓存命中直接复用；未命中会用 `agent:tool-result-lock:v1:` 加 Redis 锁，其他并发请求最多等 800ms 复用结果。只缓存成功且非流式输出的工具结果。总结来说，轮次预算防止 Agent 自旋，工具缓存减少重复 ES/Rerank 查询。
+我现在用了两层限制。
+
+第一层是流程预算，代码里有 `MAX_REACT_ROUNDS=4` 和 `MAX_REACT_TOOL_CALLS=8`，超过后会让模型基于已有 Observation 输出最终回答。
+
+第二层是 Redis 工具结果缓存和并发去重。`AgentToolRegistry` 执行工具前会先规范化参数，比如 `search_knowledge` 只取 `query/topK`，再交给 `AgentToolResultCacheService` 生成包含 userId、toolName、arguments 的 hash key。缓存命中直接复用；未命中会用 `agent:tool-result-lock:v1:` 加 Redis 锁，其他并发请求最多等 800ms 复用结果。只缓存成功且非流式输出的工具结果。
 
 ## 五、DeepSeek 工具调用与容错
 
@@ -179,7 +183,7 @@
 **考察点：** 是否知道 LLM 输出不能直接进后端逻辑。
 
 **话术：**  
-我不会把模型生成的工具参数直接拿去执行。DeepSeek tools 里有 JSON Schema，后端 Java 层还会再校验一遍。比如 `search_knowledge` 的 `query` 是必填，`topK` 默认 5，并限制在 1 到 20；`submit_feedback` 的 rating 只能是 good 或 bad；未知工具名直接走未注册异常。权限范围也不让模型传参控制，而是在后端执行 `searchWithPermission` 时根据当前 userId、组织标签和公开状态做 ES filter。参数缺失或非法时，工具执行异常会被捕获，包装成 tool message 返回给模型，而不是让 WebSocket 直接断掉。总结来说，Agent 工具调用必须“模型建议、后端裁决”，不能让模型绕过业务规则。
+我不会把模型生成的工具参数直接拿去执行。DeepSeek tools 里有 JSON Schema，后端 Java 层还会再校验一遍。比如 `search_knowledge` 的 `query` 是必填，`topK` 默认5. 未知工具名直接走未注册异常。权限范围也不让模型传参控制，而是在后端执行 `searchWithPermission` 时根据当前 userId、组织标签和公开状态做 ES filter。参数缺失或非法时，工具执行异常会被捕获，包装成 tool message 返回给模型，而不是让 WebSocket 直接断掉。
 
 ### 22. 如果模型生成了错误答案，你怎么定位是哪一步错了？
 
