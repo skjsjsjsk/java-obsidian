@@ -136,8 +136,11 @@
 **话术：**  
 我在这个项目里没有把 Redis 包装成“长期记忆库”，它主要做短期状态和热点结果缓存。
 第一类是生成态，比如 `chat:generation:{id}:meta/content/refs`，TTL 大概 30 分钟，用于前端刷新后或者WebSocket断开重联恢复正在生成的回答。
+
 第二类是会话短期上下文，比如 `conversation:{conversationId}` 和 `user:{userId}:current_conversation`，TTL 大概 7 天，长期历史还是落 MySQL。
-第三类是 Agent 工具结果缓存，比如 `agent:tool-result:v1:{toolName}:{hash}`，目前只缓存 `search_knowledge` 和 `knowledge_stats(知识库统计工具)`，分别是 10 分钟和 60 秒；hash 里包含 userId、toolName 和规范化参数，避免跨用户串数据。缓存这两个是因为对于相同的用户, 相同的query, 相同的topK来说, 短时间内查出来的结果不会的过多的变化. 同时
+
+第三类是 Agent 工具结果缓存，比如 `agent:tool-result:v1:{toolName}:{hash}`，目前只缓存 `search_knowledge` 和 `knowledge_stats(知识库统计工具)`，分别是 10 分钟和 60 秒；hash 里包含 userId、toolName 和规范化参数，避免跨用户串数据。缓存这两个是因为对于相同的用户, 相同的query, 相同的topK来说, 短时间内查出来的结果不会的过多的变化. 同时对于知识库统计信息也不需要每秒实时更新, 所以就用Redis做缓存然后返回. 
+
 第四类是上传分片 bitmap、聊天限流、Token 配额等工程辅助。总结来说，Redis 是短期状态和可失效缓存，不是长期记忆库。
 
 ### 17. 知识库更新时，怎么避免 ES 数据不一致？
