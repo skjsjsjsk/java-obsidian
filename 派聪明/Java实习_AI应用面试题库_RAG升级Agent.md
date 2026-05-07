@@ -166,7 +166,8 @@
 **话术：**  
 我遇到过两类问题：一种是 API 网络超时或返回慢，另一种是明明该查知识库，模型却直接回答。.
 
-超时这块，当前代码不是在工具层单独包响应式超时，而是在 `ChatHandler` 里做 120 秒生成截止，等待流式 ReAct 结果时会短轮询 `CompletableFuture`，超时或用户点停止就调用 `StreamHandle.cancel()`。限流和 Token 不足会通过配额服务、错误事件和 WebSocket 返回给前端。模型不调用工具的问题，我现在主要靠 prompt 强约束：除严格白名单外，问题默认要先 `search_knowledge`；`tool_choice` 当前仍是 `auto`，还没有落地强制工具调用。
+超时这块，当前代码不是在工具层单独包响应式超时，而是在 `ChatHandler` 里做 120 秒生成截止，等待当前这轮 ReAct 结果时会每隔200ms去看用户是否点击停止或者超时，超时或用户点停止就调用 `StreamHandle.cancel()` , 不再接收token
+限流和 Token 不足会通过配额服务、错误事件和 WebSocket 返回给前端。模型不调用工具的问题，我现在主要靠 prompt 强约束：除严格白名单外，问题默认要先 `search_knowledge`；`tool_choice` 当前仍是 `auto`，还没有落地强制工具调用。
 
 ### 21. 工具参数不合法怎么办？
 
