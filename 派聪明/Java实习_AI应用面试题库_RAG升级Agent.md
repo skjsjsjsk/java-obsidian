@@ -245,15 +245,15 @@ Agent 比 RAG 更容易烧 Token，因为它会多轮调用模型，每次还要
 
 **考察点：** 是否知道流式调用、工具执行和 WebSocket 推送的错误不能只靠最终兜底。
 
-**话术：**  
-这个问题我会先纠正一下：我的项目不是纯 WebFlux 项目。模型流式调用这一层确实是 WebClient/`Flux`，但 Agent 工具执行和 WebSocket 推送主要是 Java 同步方法加线程池。我的处理方式是把异常尽量转成可理解的状态：工具执行失败会捕获异常并包装成 tool message，比如“工具 search_knowledge 执行失败”；生成超时会标记 Redis generation 为 failed，并通过 WebSocket 推 error/completion；用户取消会调用 `StreamHandle.cancel()` 并标记 cancelled。同步参数校验则直接抛业务异常。总结来说，核心不是套响应式写法，而是让失败可见、可恢复、可落状态。
+我的处理方式是把异常尽量转成可理解的状态：
 
-### 29. 你怎么处理权限过滤？
+工具执行失败会捕获异常并包装成 tool message，比如“工具 search_knowledge 执行失败”；
 
-**考察点：** 企业知识库绕不开多用户和越权问题。
+生成超时会标记 Redis generation 为 failed，并通过 WebSocket 推 error/completion；
 
-**话术：**  
-我的思路是权限过滤必须在 ES 查询阶段做，而不是检索回来后再让模型判断。每个 chunk 写入 ES 时会带上权限相关元数据，比如 userId、orgTag、isPublic。Agent 调 `search_knowledge` 时不会让模型传权限范围，而是后端用当前登录 userId 调 `HybridSearchService.searchWithPermission`，在 DSL/`knn` 查询里拼权限 filter，只返回当前用户能看的 chunk。工具结果缓存也要防串数据，所以 `AgentToolResultCacheService` 构造 key 时会把 userId、toolName 和规范化参数一起序列化后做 SHA-256，不同用户不会复用同一个检索结果。总结来说，权限要在后端和 ES 层解决，缓存层也必须带用户隔离。
+用户取消会调用 `StreamHandle.cancel()` 并标记 cancelled。
+
+同步参数校验则直接抛业务异常。
 
 ### 30. 如果面试官问你和 Dify / LangChain 有什么区别，怎么答？
 
