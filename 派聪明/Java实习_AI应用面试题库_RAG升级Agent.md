@@ -2,10 +2,6 @@
 
 标签：#Java实习 #AI应用开发 #RAG #Agent #派聪明 #面试
 
-## 使用定位
-
-不要把项目说成“主导企业级 Agent 平台”，更适合的实习生人设是：
-
 > 我是 Java 后端方向，项目是自己在原 RAG 知识库基础上做的 Agent 化改造。我重点做的是工程落地：ES 混合检索、DeepSeek OpenAI 兼容工具调用、WebClient 流式消费、Spring WebSocket 推送、Redis 生成态缓存、MinIO 文档处理，以及超时、降级、引用校验这些脏活。
 
 面试回答建议遵循：
