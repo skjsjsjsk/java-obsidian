@@ -103,3 +103,5 @@
 			- 问题是服务YoungGC 频繁
 			- 原因是-XX：MaxGCPauseMillis(STW时间) 暂停时间目标参数设置较小，导致JVM自动调整降低年轻代的region
 			- 解决办法: 调大-XX：MaxGCPauseMillis 或者 固定年轻代的region的大小
+- Full GC频繁或者内存持续上涨咋办: 
+	- 
