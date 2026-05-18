@@ -109,4 +109,4 @@
 			- 因为如果Full GC后Old区占用不下降, 说明大量的对象仍然可达, 需要通过heap dump分析GC Roots引用链
 - 内存泄漏了咋办:
 	- 首先可以用jps -l找到目标Java进程PID, 然后我会用 jstat -gcutil 实时观察各内存区变化(重点看O(老年区)和FGC(Full GC次数), 如果O持续上涨, 并且FGC增加后O不下降, 那么基本上就是重点问题) 
-	- **重点**: 然后可以用 `jmap -dump`(会造成ting) 导出 heap dump，用 MAT/VisualVM 分析 dump文件, 查看对快照信息, 通过看堆信息的情况, 定位堆内存溢出的问题
+	- **重点**: 然后可以用 `jmap -dump`(会造成停顿, 不要在线上高峰期用尽量) 导出 heap dump，用 MAT/VisualVM 分析 dump文件, 查看对快照信息, 通过看堆信息的情况, 定位堆内存溢出的问题
