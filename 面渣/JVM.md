@@ -103,5 +103,9 @@
 			- 问题是服务YoungGC 频繁
 			- 原因是-XX：MaxGCPauseMillis(STW时间) 暂停时间目标参数设置较小，导致JVM自动调整降低年轻代的region
 			- 解决办法: 调大-XX：MaxGCPauseMillis 或者 固定年轻代的region的大小
-- Full GC频繁或者内存持续上涨咋办: 
-	- 
+- 线上Full GC频繁咋办: 
+	- 我会先看监控确认 Full GC 的频率、耗时、Old 区占用和接口 RT 是否同步异常。关键是观察 Full GC 后 Old 区是否明显下降。如果下降，可能是瞬时大对象或 GC 参数不合理；如果不下降，就怀疑内存泄漏。
+
+然后我会用 jstat -gcutil 实时观察各内存区变化，用 GC 日志分析晋升、停顿时间和 Full GC 原因。接着用 jmap 或 jcmd 查看对象直方图，必要时导出 heap dump，用 MAT/VisualVM 分析 dominator tree 和 GC Roots 引用链。
+
+如果堆内存不高但进程内存持续上涨，我会继续排查 Metaspace、Direct Memory、线程数和 native memory，比如用 jcmd VM.native_memory、jstack 等。最后结合业务代码确认是不是缓存、ThreadLocal、队列积压、批量查询或类加载器泄漏导致。
