@@ -103,14 +103,14 @@
 			- 问题是服务YoungGC 频繁
 			- 原因是-XX：MaxGCPauseMillis(STW时间) 暂停时间目标参数设置较小，导致JVM自动调整降低年轻代的region
 			- 解决办法: 调大-XX：MaxGCPauseMillis 或者 固定年轻代的region的大小
-- 线上Full GC频繁咋办: 
-	- 我会先看监控确认 Full GC 的频率、耗时、Old 区占用 是否同步异常。关键是观察 **Full GC 后 Old 区是否明显下降**。如果下降，可能是瞬时大对象或 GC 参数不合理；如果不下降，就怀疑内存泄漏。
+- 线上Full GC频繁或者内存持续上涨咋办: 
+	- 我会先看监控确认 Full GC 的频率、耗时、-Young GC 是否过于频繁, Old 区占用是否异常, Full GC 后 Old 区是否明显下降等等。这里面关键是观察 **Full GC 后 Old 区是否明显下降**。如果下降，可能是瞬时大对象或 GC 参数不合理；如果不下降，就怀疑内存泄漏。
 		- 为什么就怀疑是内存泄漏呢?
 			- 因为如果Full GC后Old区占用不下降, 说明大量的对象仍然可达, 需要通过heap dump分析GC Roots引用链
 - 内存泄漏了咋办:
 	- 首先可以用 `jps -l` 找到目标Java进程PID, 然后我会用 `jstat -gcutil` 实时观察各内存区变化(重点看O(老年区)和FGC(Full GC次数), 如果O持续上涨, 并且FGC增加后O不下降, 那么基本上就是重点问题) 
-	- **重点**: 然后可以用 `jmap -dump`(会造成停顿, 不要在线上高峰期用尽量) 导出 heap dump，用 MAT/VisualVM 分析 dump文件, 查看对快照信息, 通过看堆信息的情况, 定位堆内存溢出的问题
-- CPU飙高咋办:
+	- **重点**: 然后进一步可以用 `jmap -dump`(会造成停顿, 不要在线上高峰期用尽量) 导出 heap dump，用 MAT/VisualVM 这些工具去分析 dump文件, 重点看哪些对象占用内存高, GC Roots引用链, 是否有集合类, ThreadLocal这种长期持有的对象等等
+- CPU飙高咋办, 线程死循环, 锁竞争就可以用这一套:
 	1. `top` 命令, 查看各进程的CPU占用情况, 得到占用CPU高的进程 PID
 	2. `top -H -p <pid>` 命令, 可以看到该进程里面各个线程的占用CPU的情况, 找到具体高 CPU 的线程 ID
 	3. 先把第二步得到的线程ID转换为16进制
