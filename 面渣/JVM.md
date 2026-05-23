@@ -104,7 +104,7 @@
 			- 原因是-XX：MaxGCPauseMillis(STW时间) 暂停时间目标参数设置较小，导致JVM自动调整降低年轻代的region
 			- 解决办法: 调大-XX：MaxGCPauseMillis 或者 固定年轻代的region的大小
 - 线上Full GC频繁或者内存持续上涨咋办: 
-	- 我会先看监控确认 Full GC 的频率、耗时、-Young GC 是否过于频繁, Old 区占用是否异常, Full GC 后 Old 区是否明显下降等等。这里面关键是观察 **Full GC 后 Old 区是否明显下降**。如果下降，可能是瞬时大对象或 GC 参数不合理；如果不下降，就怀疑内存泄漏。
+	- 我会先看监控确认 Full GC 的频率、耗时、Young GC 是否过于频繁, Old 区占用是否异常, Full GC 后 Old 区是否明显下降等等。这里面关键是观察 **Full GC 后 Old 区是否明显下降**。如果下降，可能是瞬时大对象或 GC 参数不合理；如果不下降，就怀疑内存泄漏。
 		- 为什么就怀疑是内存泄漏呢?
 			- 因为如果Full GC后Old区占用不下降, 说明大量的对象仍然可达, 需要通过heap dump分析GC Roots引用链
 - 内存泄漏了咋办:
