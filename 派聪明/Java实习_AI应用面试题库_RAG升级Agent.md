@@ -48,7 +48,7 @@
 **考察点：** 能不能讲出执行闭环，而不是只会说 Thought/Action/Observation。
 
 **话术：**  
-我实现的 ReAct 流程可以简单理解成循环：用户问题进来后，先构造 system prompt 和工具列表，让 DeepSeek 判断下一步是直接回答还是调用工具。如果返回 `tool_calls`，后端解析函数名和参数，先做参数校验，再执行项目里注册过的工具。当前工具白名单主要是 `search_knowledge`、`generate_summary`、`knowledge_stats` 和 `submit_feedback`，其中知识检索最终会走 ES 混合检索。工具执行结果会包装成 Observation，再作为 tool message 放回上下文，继续请求模型。这个循环在代码里有限制，比如最多 4 轮 ReAct、最多 8 次工具调用，避免模型一直绕圈。这里关键是：模型只负责“决定调用什么工具和生成参数”，真正执行工具的是 Java 后端。总结来说，我做的是一个受控的 ReAct 执行器，不是让模型无限自由发挥。
+我实现的 ReAct 流程可以简单理解成循环：用户问题进来后，先构造 system prompt 和工具列表，让 DeepSeek 判断下一步是直接回答还是调用工具。如果返回 `tool_calls`，后端解析函数名和参数，先做参数校验，再执行项目里注册过的工具。当前工具白名单主要是 `search_knowledge`、`generate_summary`、`knowledge_stats` 和 `submit_feedback`，其中知识检索最终会走 ES 混合检索。工具执行结果会包装成 Observation，再作为 tool message 放回上下文，继续请求模型。这个循环在代码里有限制，比如最多 4 轮 ReAct、最多 8 次工具调用，避免模型一直绕圈。
 
 ### 6. Agent 决定调用 ES 检索时，Prompt 怎么设计？
 
