@@ -33,14 +33,6 @@
 
 **话术：**  
 我这里不是把整个后端改成纯 WebFlux，而是主要用 WebFlux 里的 `WebClient` 去消费 DeepSeek、Embedding、Rerank 这些 OpenAI 兼容接口。Agent 链路里外部 IO 很多，DeepSeek 流式响应可以通过 `bodyToFlux(String.class)` 一边接收一边处理；而浏览器侧仍然用 Spring WebSocket 的 `TextWebSocketHandler` 推送 `chunk`、`tool_call`、`completion` 这些事件。也就是说，WebClient 负责非阻塞地接模型流，Spring WebSocket 负责把结果推给前端。文档解析、MinIO 文件合并、Kafka 消费这些阻塞或耗时任务，我没有强行写成响应式，而是放在文件处理链路或线程池里。总结来说，我用 WebFlux 的点主要是模型 API 流式消费，不会把它包装成全链路响应式架构。
-
-### 4. 为什么选 DeepSeek API，而不是自己部署模型？
-
-**考察点：** 你是否理解实习项目资源边界和 API 工程化。
-
-**话术：**
-我没有选择自己部署大模型，主要是因为我的项目重点不是训练或推理优化，而是 Java 后端里的 AI 应用落地。DeepSeek 的 OpenAI 兼容接口对我来说更适合验证 Agent 流程，比如多轮对话、流式输出、工具调用和 JSON 参数生成。我在后端做了 `LlmProviderRouter`，把 `messages`、`tools`、`tool_choice=auto`、stream 参数收敛到一层，后面也能切到 Qwen、智谱这类兼容 Provider。自己部署模型虽然可控，但需要显存、推理框架、并发服务、量化和监控，实习项目很容易把重点带偏。当然 API 也有问题，比如网络超时、限流、成本和不可控输出，所以我在外层加了 120 秒生成超时、`StreamHandle.cancel()`、Redis 限流和 Token 配额。总结就是，我优先把“应用链路”做完整，而不是把精力放在模型部署上。
-
 ## 二、RAG 到 Agent 演进
 
 ### 5. 你这个 Agent 的 ReAct 流程具体怎么跑？
@@ -52,9 +44,7 @@
 
 ### 6. Agent 决定调用 ES 检索时，Prompt 怎么设计？
 
-**考察点：** 你是否理解工具描述、边界约束和参数 Schema。
-
-**话术：**  
+**话术：** 
 我在 prompt 里没有只写“你可以检索知识库”，而是把工具使用条件写得比较明确。比如用户问项目文档、上传文件、制度内容、历史知识时，默认优先调用 `search_knowledge`；如果是严格命中白名单的闲聊、格式调整、解释上一轮答案，才允许跳过检索。实际工具参数我保持得比较克制，`search_knowledge` 只有 `query` 和 `topK`，权限范围不交给模型传参，而是在 `HybridSearchService.searchWithPermission` 里根据 userId、orgTag、isPublic 这类字段拼 ES filter。DeepSeek 请求里我目前用的是 `tool_choice=auto`，不是强制 function，主要靠系统 prompt 和工具 description 约束模型。总结就是，Prompt 在这里不是文案，而是“什么时候必须查知识库、什么时候可以不查”的工具路由规则。
 
 ### 7. ES 里关键词检索和向量检索怎么结合？
