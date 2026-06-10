@@ -32,7 +32,6 @@
 	- 类不能多继承是因为, 类如果多继承, 那么在调用与父方法相同的方法时, 不知道该调用谁的
 	- 接口可以多继承, 是因为, 接口只是个行为规范, 它里面没有具体的实现
 - 为什么重写了equals必须重写hashCode方法: 因为 HashMap、HashSet 等集合先用 hashCode 定位桶，再用 equals 比较对象。如果只重写 equals 不重写 hashCode，两个逻辑相同的对象可能算出不同的 hashCode，被分到不同的桶里，导致 get 不到、contains 失效。Java 规范要求 equals 相等的对象 hashCode 必须相等，所以两个方法必须一起重写。
-	
 - String, StringBuffer, StringBuilder: String是不可变的, 它每次拼接会生成一个新对象, 在大量字符串操作的情况下会造成极大的性能开销; 而builder是在原来对象本身上进行修改操作的, 但是它是线程不安全的, 适合单线程, 而buffer是线程安全的, 在方法上加了synchronized关键字, 其余与builder一样
 	- `String s = "a"` vs `String s = new String("a")`的区别:
 		- 第一个, Java会直接在字符串常量池中去查找是否有"a", 如果有, 则把池里的引用赋给 s , 没有就创建一个新的然后赋给 s
@@ -57,3 +56,6 @@
 	- 首先就是string类本身就被final修饰, 不可以被继承, 通过重写去破坏不可变性
 	- String 内部用于存储字符的成员变量是 `private final`修饰的，说明这个引用一旦初始化后就不能再指向其他数组。
 	- String 没有提供修改内部字符内容的方法，像 `replace()`、`substring()`、`concat()` 这些操作，返回的都是一个新的 String 对象，而不是在原对象上修改。
+- 说一下反射吧: 
+	- 普通反射只能够访问被public修饰的成员, 通过getMethod拿到public方法
+	- 暴力反射用于访问被private, protected修饰的成员, 举个例子, 像私有方法, 通过getDeclareMethod拿到私有方法, 然后调用setAccessible(true) `(该方法在jdk1.8的时候好用, 之后的版本可能会报错)` 关闭Java语言层面的访问检查, 从而访问和修改私有成员
