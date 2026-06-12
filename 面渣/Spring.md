@@ -134,7 +134,6 @@
 		- @ConditionalOnClass：类路径上存在某个类时才生效
 		- @ConditionalOnMissingBean：容器中不存在某个Bean时才生效
 		- @ConditionalOnProperty：配置文件中某个属性满足条件时才生效
-
 - Spring不推荐用@Autowired: 现在一般使用
 	- 一个final关键字；    
 	- 一个@RequiredArgsConstructor注解(放到这个类的最上面)
