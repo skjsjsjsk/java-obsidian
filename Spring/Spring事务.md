@@ -2,7 +2,7 @@
 # 什么是事务
 - **事务是逻辑上的一组操作，要么都执行，要么都不执行。**
 ```
-- public void savePerson() {
+public void savePerson() {
     personDao.save(person);
     personDetailDao.save(personDetail);
   }
