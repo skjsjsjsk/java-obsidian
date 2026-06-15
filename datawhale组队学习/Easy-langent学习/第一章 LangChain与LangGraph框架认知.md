@@ -16,5 +16,5 @@ llm = ChatOpenAI(
     model="deepseek-chat"
 )
 ```
-- 上面这段代码这里的 `ChatOpenAI` 不只是能调 OpenAI , 它可以调 OpenAI 兼容接口. 
+- 上面这段代码这里的 `ChatOpenAI` 不只是能调 OpenAI , 它可以调任何兼容 OpenAI 接口的API. 
  
