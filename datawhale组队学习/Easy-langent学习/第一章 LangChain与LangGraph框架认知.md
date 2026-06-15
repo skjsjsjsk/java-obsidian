@@ -7,7 +7,14 @@
 - 而有了LangChain, 它帮你把这些常见的重复步骤封装为了一个个的组件, 让你可以按需调用, 把它们像搭积木一样一个一个串起来
 ## 核心模块
 1. Model模块
-   比如
 ```
+from langchain_openai import ChatOpenAI
 
+llm = ChatOpenAI(
+    api_key=API_KEY,
+    base_url=BASE_URL,
+    model="deepseek-chat"
+)
 ```
+- 上面这段代码这里的 `ChatOpenAI` 不只是能调 OpenAI , 它是 OpenAI
+ 
