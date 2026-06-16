@@ -12,8 +12,8 @@
 - 处理有分支, 有状态, 有循环的AI工作流
 ## 核心
 - 就三个: 
-	- State: 状态
-		- ```
+	- State: 状态. 下面是一个客服Agent的State的例子. 所有的操作都是围绕State进行的
+	```
 		  {
 		    "messages": [],          # 对话历史
 		    "question": "我的订单在哪？",
@@ -21,7 +21,7 @@
 		    "order_id": "123456",
 		    "answer": ""
 		  }
-		  ```
+	```
 	- Node: 节点
 	- Edge: 边
 ![](assets/第一章%20LangChain与LangGraph框架认知/file-20260616150639160.png)
