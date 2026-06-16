@@ -1,3 +1,4 @@
+[(5 封私信 / 57 条消息) 第一章 LangChain与LangGraph框架认知 - 知乎](https://zhuanlan.zhihu.com/p/2050253630788342614)
 - LangChain就是一条链, 比如它会把prompt, 模型, 解析器, 检索器串成一条
 - 而LangGraph则是一个流程图, 通过定义state, node, edge得到.
 # LangChain
@@ -30,3 +31,4 @@
    ├── intent = chat  → 普通聊天
    └── intent = human → 转人工
 	```
+	
