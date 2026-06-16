@@ -13,6 +13,15 @@
 ## 核心
 - 就三个: 
 	- State: 状态
+		- ```
+		  {
+		    "messages": [],          # 对话历史
+		    "question": "我的订单在哪？",
+		    "intent": "查订单",
+		    "order_id": "123456",
+		    "answer": ""
+		  }
+		  ```
 	- Node: 节点
 	- Edge: 边
 ![](assets/第一章%20LangChain与LangGraph框架认知/file-20260616150639160.png)
