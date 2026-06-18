@@ -1,4 +1,4 @@
-[第三章 LangChain进阶组件实操 | Easy-langent](https://easy-langent.datawhale.cc/guide/chapter3.html)
+
 
 # 这一章讲了什么
 
@@ -26,7 +26,7 @@ Prompt -> ChatOpenAI -> OutputParser
 - `RunnableWithMessageHistory`
 - `RunnablePassthrough`
 - `RunnableLambda`
-- `@tool`
+- **`@tool`**
 - `create_agent`
 - `PythonREPLTool`
 - `llm.bind_tools`
