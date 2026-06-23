@@ -59,16 +59,15 @@
 	- 惰性删除: 当访问key的时候检查是否过期, 如果过期就进行删除, 它不会有额外的CPU开销, 但可能会导致内存浪费
 	- 定期删除: 然后就有了定期删除, 就是每隔一段时间就选择一批key进行检查是否过期并进行删除,   默认是每隔10秒选择20个key进行检查
 	- 当以上两种仍不够用就会触发内存淘汰策略
-	
-	- 淘汰策略: 八种: 如果Redis当前内存使用超过了maxmemory, 那么就执行淘汰策略
-		- noeviction: 内存不足时直接报错, 不删除任何key
-		- allkeys-lru: 从所有 key 中, 删除最近最少使用的key, 保证热点信息
-		- allkeys-lfu: 从所有 key 中, 删除使用次数最少的key, 维持系统长时间运行
-		- allkeys-random: 从所有 key 中, 随机删除一些key
-		- volatile-lru: 从设置了过期时间的 key 中，淘汰 **最久未使用** 的 Key**（基于最后一次访问时间)
-		- volatile-lfu: 从设置了过期时间的 key 中，淘汰 **访问频率最低** 的 Key**（基于访问次数统计）
-		- volatile-ttl: 删除离过期时间最近的key
-		- volatile-random: 同上
+- 内存淘汰策略: 八种: 如果Redis当前内存使用超过了maxmemory, 那么就执行淘汰策略
+	- noeviction: 内存不足时直接报错, 不删除任何key
+	- allkeys-lru: 从所有 key 中, 删除最近最少使用的key, 保证热点信息
+	- allkeys-lfu: 从所有 key 中, 删除使用次数最少的key, 维持系统长时间运行
+	- allkeys-random: 从所有 key 中, 随机删除一些key
+	- volatile-lru: 从设置了过期时间的 key 中，淘汰 **最久未使用** 的 Key**（基于最后一次访问时间)
+	- volatile-lfu: 从设置了过期时间的 key 中，淘汰 **访问频率最低** 的 Key**（基于访问次数统计）
+	- volatile-ttl: 删除离过期时间最近的key
+	- volatile-random: 同上
 - redis能实现分布式锁吗: 使用set key value nx px timeout来实现, redis执行时会把该语句视为原子指令, 同时由于nx是只有没有这个key时才会创建锁, 而redis也是单线程的, 保证了只有一个线程运行
 	- 问题: 可能会**误删锁**, 线程A用该语句获取了锁, 然后该线程的执行周期比较长, 还没执行完锁过期了, 此时线程B进来获取锁成功, 然后线程A执行完了, 会尝试删除锁, 此时删除的就是线程B的锁
 	- 解决: 
