@@ -46,7 +46,14 @@
 	1. 硬链接: 通过ln, 硬链接与原文件共享同一个inode, 不能对目录做硬链接, 删除原文件后, 只要还有硬链接存在, 文件数据就在
 	2. 软链接: 通过ln -l, 软链接里面保存的是原文件的地址, 原文件被删了也就不能用了, 它有自己的inode, 可以链接目录, 可以跨文件系统
 21. chmod: `chmod a+x ex1, chmod o-r file, chmod u=rw,g=r,o= file`
-22. umask: 用来设置新建文件或目录文件的默认权限掩码
+22. umask: 用来设置新建文件或目录文件的默认权限掩码. `目录最大权限：777, 普通文件最大权限：666, umask则是去掉权限, 比如umask 022, 创建目录默认权限为: 777-022=755, 创建文件默认权限为: 666-022=644`
+23. chgrp 和 chown: 
+	1. chgrp: 修改文件所属用户组
+	2. chown: 修改文件主 或者 文件主+用户组
+	3. 例题: 
+		1. **将 file 的所有者改为 tom：chown tom file**
+		2. **将 file 的所属组改为 students：chgrp students file**
+		3. **将目录 /data 及其所有内容所有者改为 tom：chown -R tom /data**, -R就是递归处理目录及其子目录文件
 ```
 	2. 定向输出, eg: echo "It is a test" > myfile
 	3. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
