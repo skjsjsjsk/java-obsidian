@@ -25,7 +25,7 @@
     ![](assets/Linux/file-20260630175534654.png)
 15. > , 重定向输出, 如果有东西会清空; >> 这个是追加, <<这个的意思是从下一行开始读取输入, 直到遇到指定的结束标记, 比如`cat << EOF > file.txt` 就是重定向输出到file.txt文件中, 直到碰到EOF才停止
 16. Linux目录的作用
-	1. /etc: 存放系统配置文件, 比如/etc/passwd 用户账户信息; /etc/group 用户组信息
+	1. /etc: 存放系统配置文件, 比如/etc/passwd 用户账户信息; /etc/group 用户组信息; /etc/shadow用户密码影子文件, 通常只有root可读
 	2. /bin: 存放普通用户的命令, Linux常用命令
 	3. /sbin: 存放系统管理命令, 给root用
 	4. /dev: **设备**文件目录, /dev/null 黑洞设备, 写入的数据会丢失
