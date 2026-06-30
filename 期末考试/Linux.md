@@ -63,6 +63,7 @@
 		2. 查看 tar.gz 内容:   tar -ztvf archive.tar.gz
 		3. 解压 tar.gz:          tar -zxvf archive.tar.gz
 28. sed: 
+    ![300](assets/Linux/file-20260630222741940.png)
 ```
 	2. 定向输出, eg: echo "It is a test" > myfile
 	3. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
