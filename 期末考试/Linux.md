@@ -27,7 +27,7 @@
 	```
 	1. 定向输出, eg: echo "It is a test" > myfile
 	2. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
-	3. 双引号: 比如 name="Linux", echo "Hello $name", 输出为Hello Linux. 即$用于变量替换
+	3. 双引号: 比如 name="Linux", echo "Hello $name", 输出为Hello Linux. 即$用于变量替换. 它有三个$, `, \, 会保留各自的特殊含义
 	4. $() 和 反引号 ` 的作用完全一样, 都是命令替换, 就是把括号里的命令运行完拿出来再往下运行. eg: today=$(date +%Y-%m-%d) echo "今天是 $today"
 	5. su -, 普通用户到超级用户; su - 用户名, 可以从超级用户到普通用户. 当然, exit也是可以的
 	6. .代表目录本身, ..代表该目录的父目录
