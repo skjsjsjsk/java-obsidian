@@ -71,7 +71,7 @@
     **预处理->编译->汇编->链接**
     ![300](assets/Linux/file-20260630224959401.png)
 31. shell脚本的第一行一定是: #!/bin/bash
-	1. 数组: A=(this is an example of shell script). 
+	1. 数组: A=(this is an example of shell script)
 	    ${A[0]}      第0个元素
 		${A[@]}      所有元素
 		${#A[@]}     元素个数
