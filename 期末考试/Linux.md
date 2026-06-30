@@ -83,6 +83,8 @@
 	   ![](assets/Linux/file-20260701000330395.png)
 	   条件为假时循环, 为真结束
 		![](assets/Linux/file-20260701000517709.png)
+		![](assets/Linux/file-20260701000745111.png)
+		![300](assets/Linux/file-20260701000801135.png)
 		
 	   
 ```
