@@ -77,7 +77,7 @@
 		${#A[@]}     元素个数
 	2. { command1; command2; }在当前shell中执行, 不创建子shell
 	3. (command1; command2)在子shell中执行, 不影响外部shell
-	4. -eq; -ne: 不等于; -gt: 大于; -ge: 大于等于; -lt: 小于; -le: 小于等于
+	4. -eq; -ne: 不等于; -gt: 大于; -ge: 大于等于; -lt: 小于; -le: 小于等于;     !: 非;   -a: 与;    -o: 或
 	5. 条件测试[ ]就是测试命令, 这里 -f "$1" 两边有空格
 	   ![300](assets/Linux/file-20260630235830420.png)
 ```
