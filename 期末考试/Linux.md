@@ -57,6 +57,11 @@
 24. ps: Linux标准的进程查看工具
 25. kill: kill本质是向进程发送信号. kill -9是强制结束
 26. df: 查看文件系统磁盘使用清空
+27. tar: 是打包命令. -c: 创建文档; -x: 解包; -t: 查看包内容; -f: 指定文件名; -z: 使用gzip; -v: 显示过程  `c/x/t三者只能选一个, -f后面紧跟文件名`
+	1. 例子: 
+		1. 打包并 gzip 压缩:  tar -zcvf archive.tar.gz dir
+		2. 查看 tar.gz 内容:   tar -ztvf archive.tar.gz
+		3. 解压 tar.gz:          tar -zxvf archive.tar.gz
 ```
 	2. 定向输出, eg: echo "It is a test" > myfile
 	3. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
