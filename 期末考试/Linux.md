@@ -15,6 +15,7 @@
 5. shell脚本的第一行一定是: #!/bin/bash
 6. head -n 文件 显示某文件的前n行, tail类型.  默认10行都是
 7. sort 默认升序, sort -r 可以降序
+8. cp, 如果是目录, 要加 -r
 	```
 	1. 定向输出, eg: echo "It is a test" > myfile
 	2. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
