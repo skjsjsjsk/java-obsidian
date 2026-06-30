@@ -11,9 +11,8 @@
 4. 
 	```
 	1. 定向输出, eg: echo "It is a test" > myfile
-	2. 单引号: echo '$name\"',  原样输出字符串, $name\"
-	3. 
-	   
+	2. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
+	3. 双引号: 比如 name="Linux", echo "Hello $name", 输出为Hello Linux. 即$用于变量替换
 	```
 
 
