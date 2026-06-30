@@ -85,7 +85,8 @@
 		![](assets/Linux/file-20260701000517709.png)
 		![](assets/Linux/file-20260701000745111.png)
 		![300](assets/Linux/file-20260701000801135.png)
-		
+	6. continue 2, 表示到外层第2层循环
+	
 	   
 ```
 	2. 定向输出, eg: echo "It is a test" > myfile
