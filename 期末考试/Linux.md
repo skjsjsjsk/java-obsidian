@@ -75,7 +75,8 @@
 	    ${A[0]}      第0个元素
 		${A[@]}      所有元素
 		${#A[@]}     元素个数
-	2. 
+	2. { command1; command2; }在当前shell中执行, 不创建子shell
+	3. (command1; command2)在子shell中执行, 不影响外部shell
 ```
 	2. 定向输出, eg: echo "It is a test" > myfile
 	3. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
