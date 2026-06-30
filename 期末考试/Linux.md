@@ -54,6 +54,8 @@
 		1. **将 file 的所有者改为 tom：chown tom file**
 		2. **将 file 的所属组改为 students：chgrp students file**
 		3. **将目录 /data 及其所有内容所有者改为 tom：chown -R tom /data**, -R就是递归处理目录及其子目录文件
+24. ps: Linux标准的进程查看工具
+25. kill: kill本质是向进程发送信号. kill -9是强制结束
 ```
 	2. 定向输出, eg: echo "It is a test" > myfile
 	3. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
