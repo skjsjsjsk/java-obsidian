@@ -81,6 +81,9 @@
 	5. 条件测试[ ]就是测试命令, 这里 -f "$1" 两边有空格
 	   ![300](assets/Linux/file-20260630235830420.png)
 	   ![](assets/Linux/file-20260701000330395.png)
+	   条件为假时循环, 为真结束
+		![](assets/Linux/file-20260701000517709.png)
+		
 	   
 ```
 	2. 定向输出, eg: echo "It is a test" > myfile
