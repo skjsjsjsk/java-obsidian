@@ -17,7 +17,8 @@
 7. sort 默认升序, sort -r 可以降序
 8. cp, 如果是目录, 要加 -r, -i可以交互式, 比如 `cp  mfile  /home/mengqc/exam1` 你要复制文件, 如果exam1不存在, 那么就创建文件重命名; 如果存在并且有内容, 那么会静默覆盖, 如果有-i参数会提示你是否有覆盖, 输入y就覆盖
 9. rm, -r递归式的删除指定目录及其下属; -i交互式; -f常用的
-10. mv, 
+10. mv, 如果源文件和目标文件在同一目录下, 就是重命名, `mv a.txt b.txt`, 把a.txt改名为b.txt; 如果在不同目录下, 就移动文件, 像 `  mv a.txt /home/packb/`把a.txt移动到这个目录下, `mv a.txt /home/packb/c.txt`这样的移动完还要重命名
+11. wc, 输出格式为 `行数 字数 字节数 文件名`
 	```
 	1. 定向输出, eg: echo "It is a test" > myfile
 	2. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
