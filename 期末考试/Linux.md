@@ -72,6 +72,11 @@
     **预处理->编译->汇编->链接**
     ![300](assets/Linux/file-20260630224959401.png)
 31. shell脚本的第一行一定是: #!/bin/bash
+	1. 数组: A=(this is an example of shell script). 
+	    ${A[0]}      第0个元素
+		${A[@]}      所有元素
+		${#A[@]}     元素个数
+	2. 
 ```
 	2. 定向输出, eg: echo "It is a test" > myfile
 	3. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
