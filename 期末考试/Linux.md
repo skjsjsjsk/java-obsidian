@@ -64,7 +64,10 @@
 		3. 解压 tar.gz:          tar -zxvf archive.tar.gz
 28. sed: 
     ![300](assets/Linux/file-20260630222741940.png)
-29. awk: `$0:整行; $1:第1列; $NF:最后一列`
+29. awk: `$0:整行; $1:第1列; $NF:最后一列; NR:当前行`
+    ![400](assets/Linux/file-20260630223239266.png)
+30. vi的工作模式: 进入vi后默认命令模式, 按i/a/o进入插入模式; 插入模式按ESC回到命令模式; 命令模式按 : 进入Ex模式(转义/末行模式) 
+	1. 退出: :w保存;  :q退出, 要求文件未修改;  ZZ
 ```
 	2. 定向输出, eg: echo "It is a test" > myfile
 	3. 单引号: echo '$name\"',  原样输出单引号中的内容, 即字符串, $name\". 同时单引号内部不能再有单引号
