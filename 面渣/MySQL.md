@@ -24,7 +24,7 @@
 	- general log: 所有的SQL语句
 	- redo log(物理日志): 是重做日志，属于InnoDB引擎层, 记录物理层面的数据页的变更, 用于数据库崩溃后, 重启时能通过redo log把提交但还未刷盘的数据恢复过来
 		- 工作原理: WAL机制: 先写日志后刷盘, 即在修改操作将内存中的脏页刷入到磁盘前先将修改记录写入redo log, 这样即使系统崩溃, 也能根据redo log 进行重做
-			- 具体来说: 修改数据->写入redo log buffer(内存)->事务提交->根据redo log 的持久化
+			- 具体来说: 修改数据->写入redo log buffer(内存)->事务提交->根据redo log 的持久化策略
 	- binlog(逻辑日志): 属于MySQL Server层, 记录的是逻辑层面的数据变更, 主要用于主从复制和数据恢复。
 		- binlog的三种格式: 分别为statement, row, mixed
 			- statement: 在这种格式下binlog里面记录sql原句
