@@ -36,7 +36,6 @@
 					- 进而导致文件体积大, 主从同步时, 网络IO高, 耗时长
 			- mixed: 这种格式下默认使用statement格式, 对于某些可能会影响主从一致的sql语句改为row格式
 	- undo log: 记录的是数据修改操作的“反向操作”, 用于回滚和MVCC
-
 - WAL: 先写日志后刷盘, 即在修改操作将内存中的脏页刷入到磁盘前先将修改记录写入redo log, 这样即使系统崩溃, 也能根据redo log 进行重做
 - MySQL崩溃重启后咋样回滚: InnoDB只需要重做最近一次CheckPoint之后修改即可(这不是重新执行SQL, 而是修改数据)
 - redo log的写入过程: 先写到redo log buffer里面, 待事务提交后, 再刷盘到redo log文件中
