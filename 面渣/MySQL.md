@@ -39,8 +39,6 @@
 			- mixed: 这种格式下默认使用statement格式, 对于某些可能会影响主从一致的sql语句改为row格式
 	- undo log: 记录的是数据修改操作的“反向操作”, 用于回滚和MVCC
 - MySQL崩溃重启后咋样回滚: InnoDB只需要重做最近一次CheckPoint之后修改即可(这不是重新执行SQL, 而是修改数据)
-- redo log的写入过程: 先写到redo log buffer里面, 待事务提交后, 再刷盘到redo log文件中
-
 - 为什么要[[../MySQL/两阶段提交与崩溃恢复机制]]: 保证binlog和redo log的一致性, 防止主从复制和事务状态的不一致
 - **慢查询**: 
 	- 什么是慢查询: 当SQL运行时间超过long_query_time就是慢SQL, 会被记录到慢查询日志中
