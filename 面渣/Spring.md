@@ -84,13 +84,12 @@
 - ==Spring的JDK 动态代理和 CGLIB 代理的区别(Spring AOP是如何实现的(通过动态代理实现))==: 
 	- JDK动态代理要求目标类必须实现接口, 它会在运行时生成一个代理类, 继承 `proxy` 并且 实现目标类的接口, 调用方法时被转发到`InvocationHandler`的`invoke`方法里面, 在这里面织入内容, 同时它是JDK原生支持的
 	- CGLIB代理是基于字节码的, 通过ASM字节码动态生成目标类的子类来创建代理对象. 通过方法重写在子类方法里面织入内容, 因为它是继承, 所以无法代理被final, private, static修饰的类
-- ==选择策略==: 
-	- 如果设置了proxyTargetClass=true，或者目标类没有实现任何接口，使用CGLIB
-	- 如果目标类实现了接口, 就是用JDK动态代理
-	- 如果目标本身就是接口或者已经是代理类了, 即使proxyTargetClass=true, 也是用JDK动态代理
-	- spring boot2.x默认将spring.aop.proxy-target-class设为true, 所以默认使用CGLIB代理
+	- ==选择策略==: 
+		- 如果设置了proxyTargetClass=true，或者目标类没有实现任何接口，使用CGLIB
+		- 如果目标类实现了接口, 就是用JDK动态代理
+		- 如果目标本身就是接口或者已经是代理类了, 即使proxyTargetClass=true, 也是用JDK动态代理
+		- spring boot2.x默认将spring.aop.proxy-target-class设为true, 所以默认使用CGLIB代理
 - ==Spring AOP和AspectJ的区别==: Spring AOP是运行时通过动态代理实现的, 只能代理Spring管理的Bean, 粒度支持到方法级别, 而AspectJ 是编译期织入的, 支持到字段级别和构造方法级别的切面, 但是需要额外的编译器
-
 - ==说一下IOC与DI==: 
 	- IOC就是控制反转.
 		- 传统的对象创建比如对象A依赖对象B, A会自己 new 一个B出来, 这就导致了它们的耦合性很高. 而Spring IOC把创建对象, 依赖管理和对象的生命周期管理的权力交给了Spring容器. 业务代码只负责声明依赖, 比如 @Autowired, @Resource 这种注解, 真正的创建由Spring去完成
