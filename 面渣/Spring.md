@@ -120,7 +120,6 @@
 		- 异常类型不匹配, 该注解默认只对RuntimeException和Error回滚, 如果事务抛出受检异常（checked exception），需要通过rollbackFor(默认空数组)显式指定，否则事务不会回滚
 		- 方法内部使用try-catch捕获了异常, 但是没有抛出, Spring感知不到异常，事务自然不会回滚
 		- Bean没有被Spring管理, 类没有加@Component或@Service等注解，不是Spring管理的Bean，@Transactional不起作用
-
 - 什么是SpringBoot: SpringBoot就是一个基于Spring的快速开发工具包, 在传统的Spring开发种, 我们需要进行大量的xml配置文件, 还要手动管理各自jar包的依赖关系, 非常繁琐, 而SpringBoot通过起步依赖和自动装配解决了这些问题. 举个例子, 我在做RAG的问答助手这个项目的时候, 我在xml文件种引入spring-boot-starter-web, spring-boot-starter-data-redis依赖就自动完成了web和redis的连接, 不需要任何繁琐的配置代码. 同时SpringBoot预设了很多默认的配置, 比如内置Tomcat服务器, 可以直接打包成jar包运行等等. 它解决了传统Spring配置复杂, 管理依赖麻烦的问题.
 - ==SpringBoot自动装配==: 在 `@SpringBootApplication` 中有三个核心注解, 分别是`@SpringBootConfiguration(标记这是个SpringBoot配置类)`, `@EnableAutoConfiguration(启动自动装配)` 和 `@ComponentScan(启用组件扫描)`.       
 	- 其中 `@EnableAutoConfiguration` 是自动装配的关键, 它通过 `@Import` 导入了`AutoConfigurationImportSelector` 类, 这个类从Jar 包的 META-INF/spring.factories文件读取, 这些文件记录了配置类的全类名, 通过全类名找到对应的配置类, 配置类里定义了Bean, 再根据这些Bean的**条件注解**判断它们是否需要被加载到Spring容器中
