@@ -110,7 +110,7 @@
 	- 解决和如何删除: 
 		- 对于string类型,  
 			- 如果里面存储的是大JSON, 改用hash, 把JSON的各个字段映射到hash的filed里面. 
-			- 如果必须使用string, 那么就拆分成小key, 删除时使用DEL(对于 `string UNLINK` 无效), 在低峰期删除 (`string UNLINK` 是可以异步去删除的)
+			- 如果必须使用string, 那么就拆分成小key, 删除时使用DEL(对于 `string UNLINK` 无效), 在低峰期删除
 		- 对于集合类型, 按照业务维度拆分. 比如一个百万field的hash，按ID取模拆成10个子hash这样. 删除时使用 `HSCAN/SSCAN/ZSCAN`分批删除, 最后删除空key. 也可以直接使用`UNLINK`异步删除
 - 热key: 
 	- 使用`--hotkeys`命令找到热key, 使用该命令前提为淘汰策略为lfu
